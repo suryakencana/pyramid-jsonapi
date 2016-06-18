@@ -386,7 +386,17 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.get"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get a single item.</span>
+        <span class="sd">&#39;&#39;&#39;Handle GET request for a single item.</span>
+
+<span class="sd">        Get a single item from the collection, referenced by id.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            Get person 1:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http GET http://localhost:6543/people/1</span>
 
 <span class="sd">        Other Parameters:</span>
 <span class="sd">            id (str): from matchdict</span>
@@ -404,7 +414,22 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.patch"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.patch">[docs]</a>    <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Update an existing item from a partially defined representation.</span>
+        <span class="sd">&#39;&#39;&#39;Handle PATCH request for a single item.</span>
+
+<span class="sd">        Update an existing item from a partially defined representation.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            PATCH person 1, changing name to alicia:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http PATCH http://localhost:6543/people/1 data:=&#39;</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;type&quot;:&quot;people&quot;, &quot;id&quot;: &quot;1&quot;,</span>
+<span class="sd">                    &quot;attributes&quot;: {</span>
+<span class="sd">                        &quot;name&quot;: &quot;alicia&quot;</span>
+<span class="sd">                    }</span>
+<span class="sd">                }&#39; Content-Type:application/vnd.api+json</span>
 
 <span class="sd">        Other Parameters:</span>
 <span class="sd">            id (str): from matchdict</span>
@@ -461,10 +486,25 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.delete"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Delete an item.</span>
+        <span class="sd">&#39;&#39;&#39;Handle DELETE request for single item.</span>
+
+<span class="sd">        Delete the referenced item from the collection.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            delete person 1:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http DELETE http://localhost:6543/people/1</span>
+
+<span class="sd">        Other Parameters:</span>
+<span class="sd">            id (str): from matchdict</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPFailedDependency: if collection/id does not exist</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            dict: resource identifier for deleted object.</span>
+<span class="sd">            dict: Resource Identifier for deleted object.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">DBSession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbsession</span><span class="p">()</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">DBSession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
