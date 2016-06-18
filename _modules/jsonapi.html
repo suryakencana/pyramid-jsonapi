@@ -523,10 +523,53 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.collection_get"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.collection_get">[docs]</a>    <span class="k">def</span> <span class="nf">collection_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get multiple items from the collection.</span>
+        <span class="sd">&#39;&#39;&#39;Handle GET requests for the collection.</span>
+
+<span class="sd">        **Query Parameters**</span>
+
+<span class="sd">            **include:** comma separated list of related resources to include in</span>
+<span class="sd">            the include section.</span>
+
+<span class="sd">            **fields[&lt;collection&gt;]:** comma separated list of fields (attributes</span>
+<span class="sd">            or relationships) to include in data.</span>
+
+<span class="sd">            **sort:** comma separated list of sort keys.</span>
+
+<span class="sd">            **page[limit]:** number of results to return per page.</span>
+
+<span class="sd">            **page[offset]:** starting index for current page.</span>
+
+<span class="sd">            **filter[&lt;attribute&gt;:&lt;op&gt;]:** filter operation.</span>
+
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Get up to default page limit people resources:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http GET http://localhost:6543/people</span>
+
+<span class="sd">            Get the second page of two people, reverse sorted by name and</span>
+<span class="sd">            include the related posts as included documents:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http GET http://localhost:6543/people?page[limit]=2&amp;page[offset]=2&amp;sort=-name&amp;include=posts</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list: list of items.</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: [ list of resource objects ],</span>
+<span class="sd">                    &quot;links&quot;: { links object },</span>
+<span class="sd">                    &quot;include&quot;: [ optional list of included resource objects ],</span>
+<span class="sd">                    &quot;meta&quot;: { implementation specific information }</span>
+<span class="sd">                }</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">DBSession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbsession</span><span class="p">()</span>
 
