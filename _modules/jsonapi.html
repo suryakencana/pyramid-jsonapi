@@ -94,43 +94,6 @@
         <span class="p">]</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="DebugView"><a class="viewcode-back" href="../index.html#jsonapi.DebugView">[docs]</a><span class="k">class</span> <span class="nc">DebugView</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;Pyramid view class defining a debug API.</span>
-
-<span class="sd">    These are available as ``/debug/{action}`` if</span>
-<span class="sd">    ``jsonapi.debug.debug_endpoints == &#39;true&#39;``.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        engine: sqlalchemy engine with connection to the db.</span>
-<span class="sd">        metadata: sqlalchemy model metadata</span>
-<span class="sd">        test_data: module with an ``add_to_db()`` method which will populate the</span>
-<span class="sd">            database</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
-
-<div class="viewcode-block" id="DebugView.drop"><a class="viewcode-back" href="../index.html#jsonapi.DebugView.drop">[docs]</a>    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Drop all tables from the database!!!</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;dropped&#39;</span></div>
-
-<div class="viewcode-block" id="DebugView.populate"><a class="viewcode-back" href="../index.html#jsonapi.DebugView.populate">[docs]</a>    <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Create tables and populate with test data.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># Create or update tables and schema. Safe if tables already exist.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
-        <span class="c1"># Add test data. Safe if test data already exists.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="o">.</span><span class="n">add_to_db</span><span class="p">()</span>
-        <span class="k">return</span> <span class="s1">&#39;populated&#39;</span></div>
-
-<div class="viewcode-block" id="DebugView.reset"><a class="viewcode-back" href="../index.html#jsonapi.DebugView.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;The same as &#39;drop&#39; and then &#39;populate&#39;.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drop</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">()</span>
-        <span class="k">return</span> <span class="s2">&quot;reset&quot;</span></div></div>
-
 <div class="viewcode-block" id="create_jsonapi"><a class="viewcode-back" href="../index.html#jsonapi.create_jsonapi">[docs]</a><span class="k">def</span> <span class="nf">create_jsonapi</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">get_dbsession</span><span class="p">,</span>
     <span class="n">engine</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">test_data</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Auto-create jsonapi from module or iterable of sqlAlchemy models.</span>
@@ -293,6 +256,73 @@
     <span class="c1"># DELETE</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;relationships_delete&#39;</span><span class="p">,</span> <span class="n">request_method</span><span class="o">=</span><span class="s1">&#39;DELETE&#39;</span><span class="p">,</span>
         <span class="n">route_name</span><span class="o">=</span><span class="n">view</span><span class="o">.</span><span class="n">relationships_route_name</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="collection_view_factory"><a class="viewcode-back" href="../index.html#jsonapi.collection_view_factory">[docs]</a><span class="k">def</span> <span class="nf">collection_view_factory</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">get_dbsession</span><span class="p">,</span>
+        <span class="n">collection_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">allowed_fields</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Build a class to handle requests for model.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        model: a model class derived from DeclarativeMeta.</span>
+<span class="sd">        get_dbsession: a callable shich returns a</span>
+<span class="sd">            sqlalchemy.orm.session.Session or equivalent.</span>
+
+<span class="sd">    Keyword Args:</span>
+<span class="sd">        collection_name: string name of collection.</span>
+<span class="sd">        allowed_fields: set of allowed field names.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">collection_name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">collection_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">__tablename__</span>
+
+    <span class="n">CollectionView</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span>
+        <span class="s1">&#39;CollectionView&lt;{}&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">collection_name</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">CollectionViewBase</span><span class="p">,</span> <span class="p">),</span>
+        <span class="p">{}</span>
+    <span class="p">)</span>
+
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">key_column</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">primary_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_name</span> <span class="o">=</span> <span class="n">collection_name</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">get_dbsession</span> <span class="o">=</span> <span class="n">get_dbsession</span>
+
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_name</span> <span class="o">=</span>\
+        <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">route_prefix</span><span class="p">,</span> <span class="n">collection_name</span><span class="p">))</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_pattern</span> <span class="o">=</span> <span class="n">collection_name</span>
+
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">item_route_name</span> <span class="o">=</span>\
+        <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_name</span> <span class="o">+</span> <span class="s1">&#39;:item&#39;</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">item_route_pattern</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s1">&#39;/{id}&#39;</span>
+
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">related_route_name</span> <span class="o">=</span>\
+        <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_name</span> <span class="o">+</span> <span class="s1">&#39;:related&#39;</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">related_route_pattern</span> <span class="o">=</span>\
+        <span class="n">collection_name</span> <span class="o">+</span> <span class="s1">&#39;/{id}/{relationship}&#39;</span>
+
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">relationships_route_name</span> <span class="o">=</span>\
+        <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_name</span> <span class="o">+</span> <span class="s1">&#39;:relationships&#39;</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">relationships_route_pattern</span> <span class="o">=</span>\
+        <span class="n">collection_name</span> <span class="o">+</span> <span class="s1">&#39;/{id}/relationships/{relationship}&#39;</span>
+
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">class_allowed_fields</span> <span class="o">=</span> <span class="n">allowed_fields</span>
+    <span class="n">atts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">CollectionView</span><span class="o">.</span><span class="n">key_column</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">foreign_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">allowed_fields</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">allowed_fields</span><span class="p">:</span>
+            <span class="n">atts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">atts</span>
+    <span class="n">rels</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">relationships</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">allowed_fields</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">allowed_fields</span><span class="p">:</span>
+            <span class="n">rels</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">rel</span>
+    <span class="n">CollectionView</span><span class="o">.</span><span class="n">relationships</span> <span class="o">=</span> <span class="n">rels</span>
+
+    <span class="k">return</span> <span class="n">CollectionView</span></div>
 
 <div class="viewcode-block" id="CollectionViewBase"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase">[docs]</a><span class="k">class</span> <span class="nc">CollectionViewBase</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;Base class for all view classes.</span>
@@ -1216,7 +1246,17 @@
         <span class="k">return</span> <span class="n">q</span>
 
 <div class="viewcode-block" id="CollectionViewBase.single_return"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.single_return">[docs]</a>    <span class="k">def</span> <span class="nf">single_return</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">not_found_message</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">identifier</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Populate return dictionary for single items.</span>
+        <span class="sd">&#39;&#39;&#39;Populate return dictionary for a single item.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            q (sqlalchemy.orm.query.Query): query designed to return one item.</span>
+
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            not_found_message (str or None): if an item is not found either:</span>
+
+<span class="sd">                * raise 404 with ``not_found_message`` if it is a str;</span>
+
+<span class="sd">                * or return ``{&quot;data&quot;: None}`` if ``not_found_message`` is None.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">included</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1851,72 +1891,42 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">view_classes</span><span class="p">[</span><span class="n">model</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span></div></div>
 
+<div class="viewcode-block" id="DebugView"><a class="viewcode-back" href="../index.html#jsonapi.DebugView">[docs]</a><span class="k">class</span> <span class="nc">DebugView</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Pyramid view class defining a debug API.</span>
 
+<span class="sd">    These are available as ``/debug/{action}`` if</span>
+<span class="sd">    ``jsonapi.debug.debug_endpoints == &#39;true&#39;``.</span>
 
-<div class="viewcode-block" id="collection_view_factory"><a class="viewcode-back" href="../index.html#jsonapi.collection_view_factory">[docs]</a><span class="k">def</span> <span class="nf">collection_view_factory</span><span class="p">(</span>
-        <span class="n">model</span><span class="p">,</span>
-        <span class="n">get_dbsession</span><span class="p">,</span>
-        <span class="n">collection_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
-        <span class="n">allowed_fields</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Build a class to handle requests for model.&#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="n">collection_name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">collection_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">__tablename__</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        engine: sqlalchemy engine with connection to the db.</span>
+<span class="sd">        metadata: sqlalchemy model metadata</span>
+<span class="sd">        test_data: module with an ``add_to_db()`` method which will populate the</span>
+<span class="sd">            database</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
 
+<div class="viewcode-block" id="DebugView.drop"><a class="viewcode-back" href="../index.html#jsonapi.DebugView.drop">[docs]</a>    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Drop all tables from the database!!!</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;dropped&#39;</span></div>
 
-<span class="c1">#        def related_route_name(self, relationship_name):</span>
-<span class="c1">#            return self.collection_route_name + &#39;:related:&#39; + relationship_name</span>
+<div class="viewcode-block" id="DebugView.populate"><a class="viewcode-back" href="../index.html#jsonapi.DebugView.populate">[docs]</a>    <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Create tables and populate with test data.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Create or update tables and schema. Safe if tables already exist.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="c1"># Add test data. Safe if test data already exists.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="o">.</span><span class="n">add_to_db</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s1">&#39;populated&#39;</span></div>
 
-<span class="c1">#        def relationship_route_name(self, relationship_name):</span>
-<span class="c1">#            return self.collection_route_name +\</span>
-<span class="c1">#                &#39;:relationships:&#39; + relationship_name</span>
-
-    <span class="n">CollectionView</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span>
-        <span class="s1">&#39;CollectionView&lt;{}&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">collection_name</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">CollectionViewBase</span><span class="p">,</span> <span class="p">),</span>
-        <span class="p">{}</span>
-    <span class="p">)</span>
-
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">key_column</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">primary_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_name</span> <span class="o">=</span> <span class="n">collection_name</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">get_dbsession</span> <span class="o">=</span> <span class="n">get_dbsession</span>
-
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_name</span> <span class="o">=</span>\
-        <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">route_prefix</span><span class="p">,</span> <span class="n">collection_name</span><span class="p">))</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_pattern</span> <span class="o">=</span> <span class="n">collection_name</span>
-
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">item_route_name</span> <span class="o">=</span>\
-        <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_name</span> <span class="o">+</span> <span class="s1">&#39;:item&#39;</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">item_route_pattern</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="o">+</span> <span class="s1">&#39;/{id}&#39;</span>
-
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">related_route_name</span> <span class="o">=</span>\
-        <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_name</span> <span class="o">+</span> <span class="s1">&#39;:related&#39;</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">related_route_pattern</span> <span class="o">=</span>\
-        <span class="n">collection_name</span> <span class="o">+</span> <span class="s1">&#39;/{id}/{relationship}&#39;</span>
-
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">relationships_route_name</span> <span class="o">=</span>\
-        <span class="n">CollectionView</span><span class="o">.</span><span class="n">collection_route_name</span> <span class="o">+</span> <span class="s1">&#39;:relationships&#39;</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">relationships_route_pattern</span> <span class="o">=</span>\
-        <span class="n">collection_name</span> <span class="o">+</span> <span class="s1">&#39;/{id}/relationships/{relationship}&#39;</span>
-
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">class_allowed_fields</span> <span class="o">=</span> <span class="n">allowed_fields</span>
-    <span class="n">atts</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">CollectionView</span><span class="o">.</span><span class="n">key_column</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">foreign_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">allowed_fields</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">allowed_fields</span><span class="p">:</span>
-            <span class="n">atts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">atts</span>
-    <span class="n">rels</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">relationships</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">allowed_fields</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">allowed_fields</span><span class="p">:</span>
-            <span class="n">rels</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">rel</span>
-    <span class="n">CollectionView</span><span class="o">.</span><span class="n">relationships</span> <span class="o">=</span> <span class="n">rels</span>
-
-    <span class="k">return</span> <span class="n">CollectionView</span></div>
+<div class="viewcode-block" id="DebugView.reset"><a class="viewcode-back" href="../index.html#jsonapi.DebugView.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;The same as &#39;drop&#39; and then &#39;populate&#39;.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s2">&quot;reset&quot;</span></div></div>
 
 <div class="viewcode-block" id="ModelInfo"><a class="viewcode-back" href="../index.html#jsonapi.ModelInfo">[docs]</a><span class="k">class</span> <span class="nc">ModelInfo</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;Information about a model class (either table or relationship).</span>
