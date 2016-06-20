@@ -56,6 +56,140 @@
 <span id="jsonapi-module"></span><h3><a class="reference internal" href="#module-jsonapi" title="jsonapi"><code class="xref py py-mod docutils literal"><span class="pre">jsonapi</span></code></a> Module<a class="headerlink" href="#module-jsonapi" title="Permalink to this headline">¶</a></h3>
 <p>Tools for constructing a JSON-API from sqlalchemy models in Pyramid.</p>
 <dl class="class">
+<dt id="jsonapi.DebugView">
+<em class="property">class </em><code class="descclassname">jsonapi.</code><code class="descname">DebugView</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#DebugView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.DebugView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pyramid view class defining a debug API.</p>
+<p>These are available as <code class="docutils literal"><span class="pre">/debug/{action}</span></code> if
+<code class="docutils literal"><span class="pre">jsonapi.debug.debug_endpoints</span> <span class="pre">==</span> <span class="pre">'true'</span></code>.</p>
+<dl class="attribute">
+<dt id="jsonapi.DebugView.engine">
+<code class="descname">engine</code><a class="headerlink" href="#jsonapi.DebugView.engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>sqlalchemy engine with connection to the db.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="jsonapi.DebugView.metadata">
+<code class="descname">metadata</code><a class="headerlink" href="#jsonapi.DebugView.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>sqlalchemy model metadata</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="jsonapi.DebugView.test_data">
+<code class="descname">test_data</code><a class="headerlink" href="#jsonapi.DebugView.test_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>module with an <code class="docutils literal"><span class="pre">add_to_db()</span></code> method which will populate the
+database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.DebugView.drop">
+<code class="descname">drop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#DebugView.drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.DebugView.drop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop all tables from the database!!!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.DebugView.populate">
+<code class="descname">populate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#DebugView.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.DebugView.populate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create tables and populate with test data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.DebugView.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#DebugView.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.DebugView.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>The same as &#8216;drop&#8217; and then &#8216;populate&#8217;.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonapi.create_jsonapi">
+<code class="descclassname">jsonapi.</code><code class="descname">create_jsonapi</code><span class="sig-paren">(</span><em>config</em>, <em>models</em>, <em>get_dbsession</em>, <em>engine=None</em>, <em>test_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#create_jsonapi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.create_jsonapi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Auto-create jsonapi from module or iterable of sqlAlchemy models.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>config</strong> &#8211; <code class="docutils literal"><span class="pre">pyramid.config.Configurator</span></code> object from current app.</li>
+<li><strong>models</strong> &#8211; an iterable (or module) of model classes derived
+from DeclarativeMeta.</li>
+<li><strong>get_dbsession</strong> &#8211; a callable shich returns a
+sqlalchemy.orm.session.Session or equivalent.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>engine</strong> &#8211; a sqlalchemy.engine.Engine instance. Only required if using the
+debug view.</li>
+<li><strong>test_data</strong> &#8211; a module with an <code class="docutils literal"><span class="pre">add_to_db()</span></code> method which will populate
+the database.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonapi.create_jsonapi_using_magic_and_pixie_dust">
+<code class="descclassname">jsonapi.</code><code class="descname">create_jsonapi_using_magic_and_pixie_dust</code><span class="sig-paren">(</span><em>config</em>, <em>models</em>, <em>get_dbsession</em>, <em>engine=None</em>, <em>test_data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#jsonapi.create_jsonapi_using_magic_and_pixie_dust" title="Permalink to this definition">¶</a></dt>
+<dd><p>Auto-create jsonapi from module or iterable of sqlAlchemy models.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>config</strong> &#8211; <code class="docutils literal"><span class="pre">pyramid.config.Configurator</span></code> object from current app.</li>
+<li><strong>models</strong> &#8211; an iterable (or module) of model classes derived
+from DeclarativeMeta.</li>
+<li><strong>get_dbsession</strong> &#8211; a callable shich returns a
+sqlalchemy.orm.session.Session or equivalent.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>engine</strong> &#8211; a sqlalchemy.engine.Engine instance. Only required if using the
+debug view.</li>
+<li><strong>test_data</strong> &#8211; a module with an <code class="docutils literal"><span class="pre">add_to_db()</span></code> method which will populate
+the database.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonapi.create_resource">
+<code class="descclassname">jsonapi.</code><code class="descname">create_resource</code><span class="sig-paren">(</span><em>config</em>, <em>model</em>, <em>get_dbsession</em>, <em>collection_name=None</em>, <em>allowed_fields=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#create_resource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.create_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce a set of resource endpoints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>config</strong> &#8211; <code class="docutils literal"><span class="pre">pyramid.config.Configurator</span></code> object from current app.</li>
+<li><strong>model</strong> &#8211; a model class derived from DeclarativeMeta.</li>
+<li><strong>get_dbsession</strong> &#8211; a callable shich returns a
+sqlalchemy.orm.session.Session or equivalent.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>collection_name</strong> &#8211; string name of collection. Passed through to
+<code class="docutils literal"><span class="pre">collection_view_factory()</span></code></li>
+<li><strong>allowed_fields</strong> &#8211; set of allowed field names. Passed through to
+<code class="docutils literal"><span class="pre">collection_view_factory()</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
 <dt id="jsonapi.CollectionViewBase">
 <em class="property">class </em><code class="descclassname">jsonapi.</code><code class="descname">CollectionViewBase</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for all view classes.</p>
@@ -67,10 +201,120 @@
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
-<dt id="jsonapi.CollectionViewBase.bad_include_paths">
-<code class="descname">bad_include_paths</code><a class="headerlink" href="#jsonapi.CollectionViewBase.bad_include_paths" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a set of invalid &#8216;include&#8217; parameters.</p>
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.jsonapi_view">
+<code class="descname">jsonapi_view</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.jsonapi_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.jsonapi_view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for view functions. Adds jsonapi boilerplate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.get">
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle GET request for a single item.</p>
+<p>Get a single item from the collection, referenced by id.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="nb">object</span> <span class="p">},</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Example</p>
+<p>Get person 1:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">GET</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.patch">
+<code class="descname">patch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.patch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle PATCH request for a single item.</p>
+<p>Update an existing item from a partially defined representation.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
+<p><strong>Request Body</strong></p>
+<blockquote>
+<div><strong>Partial resource object</strong> (<em>json</em>)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;meta&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;updated&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Example</p>
+<p>PATCH person 1, changing name to alicia:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">PATCH</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;people&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;alicia&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle DELETE request for single item.</p>
+<p>Delete the referenced item from the collection.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Resource Identifier for deleted object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPFailedDependency</span></code> &#8211; if collection/id does not exist</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Example</p>
+<p>delete person 1:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">DELETE</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -187,6 +431,394 @@ id:</p>
 </div>
 </dd></dl>
 
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.related_get">
+<code class="descname">related_get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.related_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.related_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle GET requests for related URLs.</p>
+<p>Get object(s) related to a specified object.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id
+<strong>relname</strong> (<em>str</em>): relationship name</div></blockquote>
+<dl class="docutils">
+<dt><strong>Query Parameters</strong></dt>
+<dd><p class="first"><strong>sort:</strong> comma separated list of sort keys.</p>
+<p class="last"><strong>filter[&lt;attribute&gt;:&lt;op&gt;]:</strong> filter operation.</p>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>dict in the form:</p>
+<p>For a TOONE relationship (return one object):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="nb">object</span> <span class="p">},</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For a TOMANY relationship (return multiple objects):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="p">{</span> <span class="n">resource</span> <span class="nb">object</span> <span class="p">},</span> <span class="o">...</span> <span class="p">]</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code> &#8211; if <cite>relname</cite> is not found as a relationship.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code> &#8211; if a bad filter is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Get the author of post 1:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">GET</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">posts</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">author</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.relationships_get">
+<code class="descname">relationships_get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.relationships_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.relationships_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle GET requests for relationships URLs.</p>
+<p>Get object identifiers for items referred to by a relationship.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id
+<strong>relname</strong> (<em>str</em>): relationship name</div></blockquote>
+<dl class="docutils">
+<dt><strong>Query Parameters</strong></dt>
+<dd><p class="first"><strong>sort:</strong> comma separated list of sort keys.</p>
+<p class="last"><strong>filter[&lt;attribute&gt;:&lt;op&gt;]:</strong> filter operation.</p>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<p>For a TOONE relationship (return one identifier):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="n">identifier</span> <span class="p">},</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For a TOMANY relationship (return multiple identifiers):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="p">{</span> <span class="n">resource</span> <span class="n">identifier</span> <span class="p">},</span> <span class="o">...</span> <span class="p">]</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code> &#8211; if a bad filter is used.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Get an identifer for the author of post 1:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">GET</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">posts</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">relationships</span><span class="o">/</span><span class="n">author</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.relationships_post">
+<code class="descname">relationships_post</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.relationships_post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.relationships_post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle POST requests for TOMANY relationships.</p>
+<p>Add the specified member to the relationship.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id
+<strong>relname</strong> (<em>str</em>): relationship name</div></blockquote>
+<p><strong>Request Body</strong></p>
+<blockquote>
+<div><p><strong>resource identifier list</strong> (<em>json</em>) in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="p">{</span> <span class="n">resource</span> <span class="n">identifier</span> <span class="p">},</span><span class="o">...</span> <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>dict in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code> &#8211; if there is no &lt;relname&gt; relationship.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code> &#8211; if an attempt is made to modify a TOONE relationship.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPConflict</span></code> &#8211; if a resource identifier is specified with a different</li>
+<li>type than that which the collection holds.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPFailedDependency</span></code> &#8211; if a database constraint would be broken by</li>
+<li>adding the specified resource to the relationship.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Add comments/1 as a comment of posts/1</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">POST</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">posts</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">relationships</span><span class="o">/</span><span class="n">comments</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="p">[</span>
+    <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span> <span class="p">}</span>
+<span class="p">]</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.relationships_patch">
+<code class="descname">relationships_patch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.relationships_patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.relationships_patch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle PATCH requests for relationships (TOMANY or TOONE).</p>
+<p>Completely replace the raltionship membership.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id
+<strong>relname</strong> (<em>str</em>): relationship name</div></blockquote>
+<p><strong>Request Body</strong></p>
+<blockquote>
+<div><p><strong>resource identifier list</strong> (<em>json</em>) in the form:</p>
+<p>TOONE relationship:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="n">identifier</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>TOMANY relationship:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="p">{</span> <span class="n">resource</span> <span class="n">identifier</span> <span class="p">},</span><span class="o">...</span> <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>dict in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code> &#8211; if there is no &lt;relname&gt; relationship.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPConflict</span></code> &#8211; if a resource identifier is specified with a different</li>
+<li>type than that which the collection holds.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPFailedDependency</span></code> &#8211; if a database constraint would be broken by</li>
+<li>adding the specified resource to the relationship.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Replace comments list of posts/1:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">PATCH</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">posts</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">relationships</span><span class="o">/</span><span class="n">comments</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="p">[</span>
+    <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span> <span class="p">}</span>
+<span class="p">]</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.relationships_delete">
+<code class="descname">relationships_delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.relationships_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.relationships_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle DELETE requests for TOMANY relationships.</p>
+<p>Delete the specified member from the relationship.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id
+<strong>relname</strong> (<em>str</em>): relationship name</div></blockquote>
+<p><strong>Request Body</strong></p>
+<blockquote>
+<div><p><strong>resource identifier list</strong> (<em>json</em>) in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="p">{</span> <span class="n">resource</span> <span class="n">identifier</span> <span class="p">},</span><span class="o">...</span> <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>dict in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code> &#8211; if there is no &lt;relname&gt; relationship.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code> &#8211; if an attempt is made to modify a TOONE relationship.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPConflict</span></code> &#8211; if a resource identifier is specified with a different</li>
+<li>type than that which the collection holds.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPFailedDependency</span></code> &#8211; if a database constraint would be broken by</li>
+<li>adding the specified resource to the relationship.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Delete comments/1 from posts/1 comments:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">DELETE</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">posts</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">relationships</span><span class="o">/</span><span class="n">comments</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="p">[</span>
+    <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span> <span class="p">}</span>
+<span class="p">]</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="jsonapi.CollectionViewBase.single_item_query">
+<code class="descname">single_item_query</code><a class="headerlink" href="#jsonapi.CollectionViewBase.single_item_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>A query representing the single item referenced by the request.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">query which will fetch item with id
+&#8216;id&#8217;.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">sqlalchemy.orm.query.Query</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.single_return">
+<code class="descname">single_return</code><span class="sig-paren">(</span><em>q</em>, <em>not_found_message=None</em>, <em>identifier=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.single_return"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.single_return" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populate return dictionary for single items.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.collection_return">
+<code class="descname">collection_return</code><span class="sig-paren">(</span><em>q</em>, <em>count=None</em>, <em>identifiers=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.collection_return"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.collection_return" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populate return dictionary for collections.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.query_add_sorting">
+<code class="descname">query_add_sorting</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.query_add_sorting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.query_add_sorting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add sorting to query.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.query_add_filtering">
+<code class="descname">query_add_filtering</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.query_add_filtering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.query_add_filtering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add filtering clauses to query.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.related_limit">
+<code class="descname">related_limit</code><span class="sig-paren">(</span><em>relationship</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.related_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.related_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Paging limit for related resources.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.related_query">
+<code class="descname">related_query</code><span class="sig-paren">(</span><em>obj_id</em>, <em>relationship</em>, <em>id_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.related_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.related_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct query for related objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jsonapi.CollectionViewBase.serialise_db_item">
+<code class="descname">serialise_db_item</code><span class="sig-paren">(</span><em>item</em>, <em>included</em>, <em>include_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.serialise_db_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.serialise_db_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialise an individual database item to JSON-API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>item</strong> &#8211; item from query to serialise.</li>
+<li><strong>requested_includes</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#set" title="(in Python v2.7)"><em>set</em></a>) &#8211; to be included as per request.</li>
+<li><strong>include_path</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; </li>
+<li><strong>included</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; tracking included items.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">item dictionary.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="classmethod">
 <dt id="jsonapi.CollectionViewBase.collection_query_info">
 <em class="property">classmethod </em><code class="descname">collection_query_info</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.collection_query_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.collection_query_info" title="Permalink to this definition">¶</a></dt>
@@ -232,82 +864,6 @@ id:</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="jsonapi.CollectionViewBase.collection_return">
-<code class="descname">collection_return</code><span class="sig-paren">(</span><em>q</em>, <em>count=None</em>, <em>identifiers=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.collection_return"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.collection_return" title="Permalink to this definition">¶</a></dt>
-<dd><p>Populate return dictionary for collections.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.delete">
-<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.delete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handle DELETE request for single item.</p>
-<p>Delete the referenced item from the collection.</p>
-<p><strong>URL (matchdict) Parameters</strong></p>
-<blockquote>
-<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Resource Identifier for deleted object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPFailedDependency</span></code> &#8211; if collection/id does not exist</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Example</p>
-<p>delete person 1:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">DELETE</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.get">
-<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handle GET request for a single item.</p>
-<p>Get a single item from the collection, referenced by id.</p>
-<p><strong>URL (matchdict) Parameters</strong></p>
-<blockquote>
-<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="nb">object</span> <span class="p">},</span>
-    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
-        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Example</p>
-<p>Get person 1:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">GET</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.jsonapi_view">
-<code class="descname">jsonapi_view</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.jsonapi_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.jsonapi_view" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decorator for view functions. Adds jsonapi boilerplate.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="jsonapi.CollectionViewBase.pagination_links">
 <code class="descname">pagination_links</code><span class="sig-paren">(</span><em>count=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.pagination_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.pagination_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary of pagination links.</p>
@@ -326,112 +882,6 @@ id:</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="jsonapi.CollectionViewBase.patch">
-<code class="descname">patch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.patch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handle PATCH request for a single item.</p>
-<p>Update an existing item from a partially defined representation.</p>
-<p><strong>URL (matchdict) Parameters</strong></p>
-<blockquote>
-<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
-<p><strong>Request Body</strong></p>
-<blockquote>
-<div><strong>Partial resource object</strong> (<em>json</em>)</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s1">&#39;meta&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;updated&#39;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span>
-        <span class="p">]</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Example</p>
-<p>PATCH person 1, changing name to alicia:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">PATCH</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
-<span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;people&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;alicia&quot;</span>
-    <span class="p">}</span>
-<span class="p">}</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.query_add_filtering">
-<code class="descname">query_add_filtering</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.query_add_filtering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.query_add_filtering" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add filtering clauses to query.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.query_add_sorting">
-<code class="descname">query_add_sorting</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.query_add_sorting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.query_add_sorting" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add sorting to query.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.related_get">
-<code class="descname">related_get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.related_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.related_get" title="Permalink to this definition">¶</a></dt>
-<dd><p>GET object(s) related to a specified object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.related_limit">
-<code class="descname">related_limit</code><span class="sig-paren">(</span><em>relationship</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.related_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.related_limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Paging limit for related resources.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.related_query">
-<code class="descname">related_query</code><span class="sig-paren">(</span><em>obj_id</em>, <em>relationship</em>, <em>id_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.related_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.related_query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct query for related objects.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.relationships_delete">
-<code class="descname">relationships_delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.relationships_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.relationships_delete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete items from relationship collection.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.relationships_get">
-<code class="descname">relationships_get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.relationships_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.relationships_get" title="Permalink to this definition">¶</a></dt>
-<dd><p>GET resource identifiers for members in a relationship.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.relationships_patch">
-<code class="descname">relationships_patch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.relationships_patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.relationships_patch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Replace relationship collection.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.relationships_post">
-<code class="descname">relationships_post</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.relationships_post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.relationships_post" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add new items to a relationship collection.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="jsonapi.CollectionViewBase.requested_attributes">
-<code class="descname">requested_attributes</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_attributes" title="Permalink to this definition">¶</a></dt>
-<dd><p><a href="#id1"><span class="problematic" id="id2">**</span></a>Return a dictionary of attributes* &#8211; {colname* &#8211; column}.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="jsonapi.CollectionViewBase.requested_field_names">
 <code class="descname">requested_field_names</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.requested_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_field_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the sparse field names as a set from req params for type_name.</p>
@@ -439,9 +889,97 @@ id:</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="jsonapi.CollectionViewBase.requested_attributes">
+<code class="descname">requested_attributes</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of attributes.</p>
+<p><strong>Query Parameters</strong></p>
+<blockquote>
+<div><strong>fields[&lt;collection&gt;]:</strong> comma separated list of fields (attributes
+or relationships) to include in data.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<blockquote>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="o">&lt;</span><span class="n">colname</span><span class="o">&gt;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">column_object</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="jsonapi.CollectionViewBase.requested_relationships">
+<code class="descname">requested_relationships</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_relationships" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of relationships.</p>
+<p><strong>Query Parameters</strong></p>
+<blockquote>
+<div><strong>fields[&lt;collection&gt;]:</strong> comma separated list of fields (attributes
+or relationships) to include in data.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<blockquote>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="o">&lt;</span><span class="n">relname</span><span class="o">&gt;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">relationship_object</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="jsonapi.CollectionViewBase.requested_fields">
 <code class="descname">requested_fields</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_fields" title="Permalink to this definition">¶</a></dt>
 <dd><p>Union of attributes and relationships.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="jsonapi.CollectionViewBase.requested_relationships_local_columns">
+<code class="descname">requested_relationships_local_columns</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_relationships_local_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the local columns for MANYTOONE relationships.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">local columns indexed by column name.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="jsonapi.CollectionViewBase.requested_query_columns">
+<code class="descname">requested_query_columns</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_query_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>All columns required in query to fetch requested fields from db.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Union of requested_attributes and requested_relationships_local_columns</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -465,73 +1003,9 @@ id:</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="jsonapi.CollectionViewBase.requested_query_columns">
-<code class="descname">requested_query_columns</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_query_columns" title="Permalink to this definition">¶</a></dt>
-<dd><p>All columns required in query to fetch requested fields from db.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Union of requested_attributes and requested_relationships_local_columns</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="jsonapi.CollectionViewBase.requested_relationships">
-<code class="descname">requested_relationships</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_relationships" title="Permalink to this definition">¶</a></dt>
-<dd><p><a href="#id3"><span class="problematic" id="id4">**</span></a>Return a dictionary of relationships* &#8211; {relname* &#8211; rel}.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="jsonapi.CollectionViewBase.requested_relationships_local_columns">
-<code class="descname">requested_relationships_local_columns</code><a class="headerlink" href="#jsonapi.CollectionViewBase.requested_relationships_local_columns" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds all the local columns for MANYTOONE relationships.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">local columns indexed by column name.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.serialise_db_item">
-<code class="descname">serialise_db_item</code><span class="sig-paren">(</span><em>item</em>, <em>included</em>, <em>include_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.serialise_db_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.serialise_db_item" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialise an individual database item to JSON-API.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>item</strong> &#8211; item from query to serialise.</li>
-<li><strong>requested_includes</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#set" title="(in Python v2.7)"><em>set</em></a>) &#8211; to be included as per request.</li>
-<li><strong>include_path</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; </li>
-<li><strong>included</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; tracking included items.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">item dictionary.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.CollectionViewBase.single_return">
-<code class="descname">single_return</code><span class="sig-paren">(</span><em>q</em>, <em>not_found_message=None</em>, <em>identifier=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.single_return"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.single_return" title="Permalink to this definition">¶</a></dt>
-<dd><p>Populate return dictionary for single items.</p>
+<dt id="jsonapi.CollectionViewBase.bad_include_paths">
+<code class="descname">bad_include_paths</code><a class="headerlink" href="#jsonapi.CollectionViewBase.bad_include_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of invalid &#8216;include&#8217; parameters.</p>
 </dd></dl>
 
 <dl class="method">
@@ -542,49 +1016,10 @@ id:</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="jsonapi.DebugView">
-<em class="property">class </em><code class="descclassname">jsonapi.</code><code class="descname">DebugView</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#DebugView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.DebugView" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pyramid view class defining a debug API.</p>
-<p>These are available as <code class="docutils literal"><span class="pre">/debug/{action}</span></code> if
-<code class="docutils literal"><span class="pre">jsonapi.debug.debug_endpoints</span> <span class="pre">==</span> <span class="pre">'true'</span></code>.</p>
-<dl class="attribute">
-<dt id="jsonapi.DebugView.engine">
-<code class="descname">engine</code><a class="headerlink" href="#jsonapi.DebugView.engine" title="Permalink to this definition">¶</a></dt>
-<dd><p>sqlalchemy engine with connection to the db.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="jsonapi.DebugView.metadata">
-<code class="descname">metadata</code><a class="headerlink" href="#jsonapi.DebugView.metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>sqlalchemy model metadata</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="jsonapi.DebugView.test_data">
-<code class="descname">test_data</code><a class="headerlink" href="#jsonapi.DebugView.test_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>module with an <code class="docutils literal"><span class="pre">add_to_db()</span></code> method which will populate the
-database</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.DebugView.drop">
-<code class="descname">drop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#DebugView.drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.DebugView.drop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Drop all tables from the database!!!</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.DebugView.populate">
-<code class="descname">populate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#DebugView.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.DebugView.populate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create tables and populate with test data.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="jsonapi.DebugView.reset">
-<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#DebugView.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.DebugView.reset" title="Permalink to this definition">¶</a></dt>
-<dd><p>The same as &#8216;drop&#8217; and then &#8216;populate&#8217;.</p>
-</dd></dl>
-
+<dl class="function">
+<dt id="jsonapi.collection_view_factory">
+<code class="descclassname">jsonapi.</code><code class="descname">collection_view_factory</code><span class="sig-paren">(</span><em>model</em>, <em>get_dbsession</em>, <em>collection_name=None</em>, <em>allowed_fields=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#collection_view_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.collection_view_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a class to handle requests for model.</p>
 </dd></dl>
 
 <dl class="class">
@@ -634,101 +1069,6 @@ database</p>
 </table>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="function">
-<dt id="jsonapi.collection_view_factory">
-<code class="descclassname">jsonapi.</code><code class="descname">collection_view_factory</code><span class="sig-paren">(</span><em>model</em>, <em>get_dbsession</em>, <em>collection_name=None</em>, <em>allowed_fields=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#collection_view_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.collection_view_factory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build a class to handle requests for model.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="jsonapi.create_jsonapi">
-<code class="descclassname">jsonapi.</code><code class="descname">create_jsonapi</code><span class="sig-paren">(</span><em>config</em>, <em>models</em>, <em>get_dbsession</em>, <em>engine=None</em>, <em>test_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#create_jsonapi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.create_jsonapi" title="Permalink to this definition">¶</a></dt>
-<dd><p>Auto-create jsonapi from module or iterable of sqlAlchemy models.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> &#8211; <code class="docutils literal"><span class="pre">pyramid.config.Configurator</span></code> object from current app.</li>
-<li><strong>models</strong> &#8211; an iterable (or module) of model classes derived
-from DeclarativeMeta.</li>
-<li><strong>get_dbsession</strong> &#8211; a callable shich returns a
-sqlalchemy.orm.session.Session or equivalent.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><strong>engine</strong> &#8211; a sqlalchemy.engine.Engine instance. Only required if using the
-debug view.</li>
-<li><strong>test_data</strong> &#8211; a module with an <code class="docutils literal"><span class="pre">add_to_db()</span></code> method which will populate
-the database.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="jsonapi.create_jsonapi_using_magic_and_pixie_dust">
-<code class="descclassname">jsonapi.</code><code class="descname">create_jsonapi_using_magic_and_pixie_dust</code><span class="sig-paren">(</span><em>config</em>, <em>models</em>, <em>get_dbsession</em>, <em>engine=None</em>, <em>test_data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#jsonapi.create_jsonapi_using_magic_and_pixie_dust" title="Permalink to this definition">¶</a></dt>
-<dd><p>Auto-create jsonapi from module or iterable of sqlAlchemy models.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> &#8211; <code class="docutils literal"><span class="pre">pyramid.config.Configurator</span></code> object from current app.</li>
-<li><strong>models</strong> &#8211; an iterable (or module) of model classes derived
-from DeclarativeMeta.</li>
-<li><strong>get_dbsession</strong> &#8211; a callable shich returns a
-sqlalchemy.orm.session.Session or equivalent.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><strong>engine</strong> &#8211; a sqlalchemy.engine.Engine instance. Only required if using the
-debug view.</li>
-<li><strong>test_data</strong> &#8211; a module with an <code class="docutils literal"><span class="pre">add_to_db()</span></code> method which will populate
-the database.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="jsonapi.create_resource">
-<code class="descclassname">jsonapi.</code><code class="descname">create_resource</code><span class="sig-paren">(</span><em>config</em>, <em>model</em>, <em>get_dbsession</em>, <em>collection_name=None</em>, <em>allowed_fields=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#create_resource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.create_resource" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produce a set of resource endpoints.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>config</strong> &#8211; <code class="docutils literal"><span class="pre">pyramid.config.Configurator</span></code> object from current app.</li>
-<li><strong>model</strong> &#8211; a model class derived from DeclarativeMeta.</li>
-<li><strong>get_dbsession</strong> &#8211; a callable shich returns a
-sqlalchemy.orm.session.Session or equivalent.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><strong>collection_name</strong> &#8211; string name of collection. Passed through to
-<code class="docutils literal"><span class="pre">collection_view_factory()</span></code></li>
-<li><strong>allowed_fields</strong> &#8211; set of allowed field names. Passed through to
-<code class="docutils literal"><span class="pre">collection_view_factory()</span></code></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </div>

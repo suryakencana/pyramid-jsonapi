@@ -731,7 +731,60 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.related_get"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.related_get">[docs]</a>    <span class="k">def</span> <span class="nf">related_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;GET object(s) related to a specified object.</span>
+        <span class="sd">&#39;&#39;&#39;Handle GET requests for related URLs.</span>
+
+<span class="sd">        Get object(s) related to a specified object.</span>
+
+<span class="sd">        **URL (matchdict) Parameters**</span>
+
+<span class="sd">            **id** (*str*): resource id</span>
+<span class="sd">            **relname** (*str*): relationship name</span>
+
+<span class="sd">        **Query Parameters**</span>
+<span class="sd">            **sort:** comma separated list of sort keys.</span>
+
+<span class="sd">            **filter[&lt;attribute&gt;:&lt;op&gt;]:** filter operation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">            For a TOONE relationship (return one object):</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: { resource object },</span>
+<span class="sd">                    &quot;links&quot;: {</span>
+<span class="sd">                        &quot;self&quot;: self url,</span>
+<span class="sd">                        maybe other links...</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;meta&quot;: { jsonapi specific information }</span>
+<span class="sd">                }</span>
+
+<span class="sd">            For a TOMANY relationship (return multiple objects):</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: [ { resource object }, ... ]</span>
+<span class="sd">                    &quot;links&quot;: {</span>
+<span class="sd">                        &quot;self&quot;: self url,</span>
+<span class="sd">                        maybe other links...</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;meta&quot;: { jsonapi specific information }</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound: if `relname` is not found as a relationship.</span>
+
+<span class="sd">            HTTPBadRequest: if a bad filter is used.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Get the author of post 1:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http GET http://localhost:6543/posts/1/author</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">obj_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
         <span class="n">relname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;relationship&#39;</span><span class="p">]</span>
@@ -769,7 +822,58 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.relationships_get"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.relationships_get">[docs]</a>    <span class="k">def</span> <span class="nf">relationships_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;GET resource identifiers for members in a relationship.</span>
+        <span class="sd">&#39;&#39;&#39;Handle GET requests for relationships URLs.</span>
+
+<span class="sd">        Get object identifiers for items referred to by a relationship.</span>
+
+<span class="sd">        **URL (matchdict) Parameters**</span>
+
+<span class="sd">            **id** (*str*): resource id</span>
+<span class="sd">            **relname** (*str*): relationship name</span>
+
+<span class="sd">        **Query Parameters**</span>
+<span class="sd">            **sort:** comma separated list of sort keys.</span>
+
+<span class="sd">            **filter[&lt;attribute&gt;:&lt;op&gt;]:** filter operation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">            For a TOONE relationship (return one identifier):</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: { resource identifier },</span>
+<span class="sd">                    &quot;links&quot;: {</span>
+<span class="sd">                        &quot;self&quot;: self url,</span>
+<span class="sd">                        maybe other links...</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;meta&quot;: { jsonapi specific information }</span>
+<span class="sd">                }</span>
+
+<span class="sd">            For a TOMANY relationship (return multiple identifiers):</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: [ { resource identifier }, ... ]</span>
+<span class="sd">                    &quot;links&quot;: {</span>
+<span class="sd">                        &quot;self&quot;: self url,</span>
+<span class="sd">                        maybe other links...</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;meta&quot;: { jsonapi specific information }</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest: if a bad filter is used.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Get an identifer for the author of post 1:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http GET http://localhost:6543/posts/1/relationships/author</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">obj_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
         <span class="n">relname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;relationship&#39;</span><span class="p">]</span>
@@ -815,7 +919,58 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.relationships_post"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.relationships_post">[docs]</a>    <span class="k">def</span> <span class="nf">relationships_post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Add new items to a relationship collection.</span>
+        <span class="sd">&#39;&#39;&#39;Handle POST requests for TOMANY relationships.</span>
+
+<span class="sd">        Add the specified member to the relationship.</span>
+
+<span class="sd">        **URL (matchdict) Parameters**</span>
+
+<span class="sd">            **id** (*str*): resource id</span>
+<span class="sd">            **relname** (*str*): relationship name</span>
+
+<span class="sd">        **Request Body**</span>
+
+<span class="sd">            **resource identifier list** (*json*) in the form:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: [ { resource identifier },... ]</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;links&quot;: {</span>
+<span class="sd">                        &quot;self&quot;: self url,</span>
+<span class="sd">                        maybe other links...</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;meta&quot;: { jsonapi specific information }</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound: if there is no &lt;relname&gt; relationship.</span>
+
+<span class="sd">            HTTPNotFound: if an attempt is made to modify a TOONE relationship.</span>
+
+<span class="sd">            HTTPConflict: if a resource identifier is specified with a different</span>
+<span class="sd">            type than that which the collection holds.</span>
+
+<span class="sd">            HTTPFailedDependency: if a database constraint would be broken by</span>
+<span class="sd">            adding the specified resource to the relationship.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Add comments/1 as a comment of posts/1</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http POST http://localhost:6543/posts/1/relationships/comments data:=&#39;</span>
+<span class="sd">                [</span>
+<span class="sd">                    { &quot;type&quot;: &quot;comments&quot;, &quot;id&quot;: &quot;1&quot; }</span>
+<span class="sd">                ]&#39; Content-Type:application/vnd.api+json</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">DBSession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbsession</span><span class="p">()</span>
         <span class="n">obj_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
@@ -849,7 +1004,67 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.relationships_patch"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.relationships_patch">[docs]</a>    <span class="k">def</span> <span class="nf">relationships_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Replace relationship collection.</span>
+        <span class="sd">&#39;&#39;&#39;Handle PATCH requests for relationships (TOMANY or TOONE).</span>
+
+<span class="sd">        Completely replace the raltionship membership.</span>
+
+<span class="sd">        **URL (matchdict) Parameters**</span>
+
+<span class="sd">            **id** (*str*): resource id</span>
+<span class="sd">            **relname** (*str*): relationship name</span>
+
+<span class="sd">        **Request Body**</span>
+
+<span class="sd">            **resource identifier list** (*json*) in the form:</span>
+
+<span class="sd">            TOONE relationship:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: { resource identifier }</span>
+<span class="sd">                }</span>
+
+<span class="sd">            TOMANY relationship:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: [ { resource identifier },... ]</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;links&quot;: {</span>
+<span class="sd">                        &quot;self&quot;: self url,</span>
+<span class="sd">                        maybe other links...</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;meta&quot;: { jsonapi specific information }</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound: if there is no &lt;relname&gt; relationship.</span>
+
+<span class="sd">            HTTPConflict: if a resource identifier is specified with a different</span>
+<span class="sd">            type than that which the collection holds.</span>
+
+<span class="sd">            HTTPFailedDependency: if a database constraint would be broken by</span>
+<span class="sd">            adding the specified resource to the relationship.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Replace comments list of posts/1:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http PATCH http://localhost:6543/posts/1/relationships/comments data:=&#39;</span>
+<span class="sd">                [</span>
+<span class="sd">                    { &quot;type&quot;: &quot;comments&quot;, &quot;id&quot;: &quot;1&quot; },</span>
+<span class="sd">                    { &quot;type&quot;: &quot;comments&quot;, &quot;id&quot;: &quot;2&quot; }</span>
+<span class="sd">                ]&#39; Content-Type:application/vnd.api+json</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">DBSession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbsession</span><span class="p">()</span>
         <span class="n">obj_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
@@ -896,7 +1111,58 @@
 
     <span class="nd">@jsonapi_view</span>
 <div class="viewcode-block" id="CollectionViewBase.relationships_delete"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.relationships_delete">[docs]</a>    <span class="k">def</span> <span class="nf">relationships_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Delete items from relationship collection.</span>
+        <span class="sd">&#39;&#39;&#39;Handle DELETE requests for TOMANY relationships.</span>
+
+<span class="sd">        Delete the specified member from the relationship.</span>
+
+<span class="sd">        **URL (matchdict) Parameters**</span>
+
+<span class="sd">            **id** (*str*): resource id</span>
+<span class="sd">            **relname** (*str*): relationship name</span>
+
+<span class="sd">        **Request Body**</span>
+
+<span class="sd">            **resource identifier list** (*json*) in the form:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: [ { resource identifier },... ]</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;links&quot;: {</span>
+<span class="sd">                        &quot;self&quot;: self url,</span>
+<span class="sd">                        maybe other links...</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;meta&quot;: { jsonapi specific information }</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound: if there is no &lt;relname&gt; relationship.</span>
+
+<span class="sd">            HTTPNotFound: if an attempt is made to modify a TOONE relationship.</span>
+
+<span class="sd">            HTTPConflict: if a resource identifier is specified with a different</span>
+<span class="sd">            type than that which the collection holds.</span>
+
+<span class="sd">            HTTPFailedDependency: if a database constraint would be broken by</span>
+<span class="sd">            adding the specified resource to the relationship.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Delete comments/1 from posts/1 comments:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http DELETE http://localhost:6543/posts/1/relationships/comments data:=&#39;</span>
+<span class="sd">                [</span>
+<span class="sd">                    { &quot;type&quot;: &quot;comments&quot;, &quot;id&quot;: &quot;1&quot; }</span>
+<span class="sd">                ]&#39; Content-Type:application/vnd.api+json</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">DBSession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbsession</span><span class="p">()</span>
         <span class="n">obj_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
@@ -929,6 +1195,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">single_item_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;A query representing the single item referenced by the request.</span>
+
+<span class="sd">        **URL (matchdict) Parameters**</span>
+
+<span class="sd">            **id** (*str*): resource id</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.orm.query.Query: query which will fetch item with id</span>
+<span class="sd">            &#39;id&#39;.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">DBSession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbsession</span><span class="p">()</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">DBSession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
@@ -1443,14 +1719,44 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">requested_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Return a dictionary of attributes: {colname: column}.</span>
+        <span class="sd">&#39;&#39;&#39;Return a dictionary of attributes.</span>
+
+<span class="sd">        **Query Parameters**</span>
+
+<span class="sd">            **fields[&lt;collection&gt;]:** comma separated list of fields (attributes</span>
+<span class="sd">            or relationships) to include in data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">                .. parsed-literal::</span>
+
+<span class="sd">                    {</span>
+<span class="sd">                        &lt;colname&gt;: &lt;column_object&gt;,</span>
+<span class="sd">                        ...</span>
+<span class="sd">                    }</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">{</span> <span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_field_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">requested_relationships</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Return a dictionary of relationships: {relname: rel}.</span>
+        <span class="sd">&#39;&#39;&#39;Return a dictionary of relationships.</span>
+
+<span class="sd">        **Query Parameters**</span>
+
+<span class="sd">            **fields[&lt;collection&gt;]:** comma separated list of fields (attributes</span>
+<span class="sd">            or relationships) to include in data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">                .. parsed-literal::</span>
+
+<span class="sd">                    {</span>
+<span class="sd">                        &lt;relname&gt;: &lt;relationship_object&gt;,</span>
+<span class="sd">                        ...</span>
+<span class="sd">                    }</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">{</span> <span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationships</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_field_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)}</span>
