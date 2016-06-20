@@ -77,6 +77,9 @@
 <dt id="jsonapi.CollectionViewBase.collection_get">
 <code class="descname">collection_get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.collection_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.collection_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle GET requests for the collection.</p>
+<p>Get a set of items from the collection, possibly matching search/filter
+parameters. Optionally sort the results, page them, return only certain
+fields, and include related resources.</p>
 <p><strong>Query Parameters</strong></p>
 <blockquote>
 <div><p><strong>include:</strong> comma separated list of related resources to include in
@@ -88,6 +91,26 @@ or relationships) to include in data.</p>
 <p><strong>page[offset]:</strong> starting index for current page.</p>
 <p><strong>filter[&lt;attribute&gt;:&lt;op&gt;]:</strong> filter operation.</p>
 </div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">resource</span> <span class="n">objects</span> <span class="p">],</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">links</span> <span class="nb">object</span> <span class="p">},</span>
+    <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">optional</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">included</span> <span class="n">resource</span> <span class="n">objects</span> <span class="p">],</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">implementation</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Examples</p>
 <p>Get up to default page limit people resources:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">GET</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span>
@@ -98,40 +121,70 @@ include the related posts as included documents:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>http GET http://localhost:6543/people?page[limit]=2&amp;page[offset]=2&amp;sort=-name&amp;include=posts
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">resource</span> <span class="n">objects</span> <span class="p">],</span>
-    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">links</span> <span class="nb">object</span> <span class="p">},</span>
-    <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">optional</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">included</span> <span class="n">resource</span> <span class="n">objects</span> <span class="p">],</span>
-    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">implementation</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="jsonapi.CollectionViewBase.collection_post">
 <code class="descname">collection_post</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.collection_post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.collection_post" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new object in collection.</p>
+<dd><p>Handle POST requests for the collection.</p>
+<p>Create a new object in collection.</p>
+<p><strong>Request Body</strong></p>
+<blockquote>
+<div><p><strong>resource object</strong> (<em>json</em>) in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="nb">object</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Resource identifier for created item.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>dict in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="nb">object</span> <span class="p">},</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPForbidden</span></code> &#8211; if an id is presented in &#8220;data&#8221; and client ids are</li>
+<li>not supported.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPConflict</span></code> &#8211; if type is not present or is different from the</li>
+<li>collection name.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code> &#8211; if a non existent relationship is referenced in the</li>
+<li>supplied resource object.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPConflict</span></code> &#8211; if creating the object would break a database</li>
+<li>constraint (most commonly if an id is supplied by the client and</li>
+<li>an item with that id already exists).</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<p>Create a new person with name &#8216;monty&#8217; and let the server pick the
+id:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">POST</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;people&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;monty&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="classmethod">
@@ -189,26 +242,26 @@ include the related posts as included documents:</p>
 <code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle DELETE request for single item.</p>
 <p>Delete the referenced item from the collection.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Resource Identifier for deleted object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPFailedDependency</span></code> &#8211; if collection/id does not exist</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Example</p>
 <p>delete person 1:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">DELETE</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><strong>id</strong> (<em>str</em>) &#8211; from matchdict</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPFailedDependency</span></code> &#8211; if collection/id does not exist</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Resource Identifier for deleted object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="method">
@@ -216,24 +269,36 @@ include the related posts as included documents:</p>
 <code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle GET request for a single item.</p>
 <p>Get a single item from the collection, referenced by id.</p>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict in the form:<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="nb">object</span> <span class="p">},</span>
+    <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">:</span> <span class="bp">self</span> <span class="n">url</span><span class="p">,</span>
+        <span class="n">maybe</span> <span class="n">other</span> <span class="n">links</span><span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">jsonapi</span> <span class="n">specific</span> <span class="n">information</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Example</p>
 <p>Get person 1:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">GET</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><strong>id</strong> (<em>str</em>) &#8211; from matchdict</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">single resource object.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="method">
@@ -265,33 +330,12 @@ include the related posts as included documents:</p>
 <code class="descname">patch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.patch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle PATCH request for a single item.</p>
 <p>Update an existing item from a partially defined representation.</p>
-<p class="rubric">Example</p>
-<p>PATCH person 1, changing name to alicia:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">PATCH</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
-<span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;people&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;alicia&quot;</span>
-    <span class="p">}</span>
-<span class="p">}</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><strong>id</strong> (<em>str</em>) &#8211; from matchdict</li>
-<li><strong>partial Resource Object</strong> (<em>json</em>) &#8211; from request body</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></p>
-</td>
-</tr>
-</tbody>
-</table>
+<p><strong>URL (matchdict) Parameters</strong></p>
+<blockquote>
+<div><strong>id</strong> (<em>str</em>): resource id</div></blockquote>
+<p><strong>Request Body</strong></p>
+<blockquote>
+<div><strong>Partial resource object</strong> (<em>json</em>)</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -310,8 +354,21 @@ include the related posts as included documents:</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
 </tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></td>
+</tr>
 </tbody>
 </table>
+<p class="rubric">Example</p>
+<p>PATCH person 1, changing name to alicia:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">PATCH</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">people</span><span class="o">/</span><span class="mi">1</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;people&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;alicia&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
