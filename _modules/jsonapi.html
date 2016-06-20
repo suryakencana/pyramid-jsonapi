@@ -391,7 +391,11 @@
 
             <span class="c1"># Include a self link unless the method is PATCH.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">!=</span> <span class="s1">&#39;PATCH&#39;</span><span class="p">:</span>
-                <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;links&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;self&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">}</span>
+                <span class="n">selfie</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;self&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">}</span>
+                <span class="k">if</span> <span class="s1">&#39;links&#39;</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
+                    <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;links&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">selfie</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;links&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">selfie</span>
 
             <span class="c1"># Potentially add some debug information.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -503,6 +507,33 @@
 <span class="sd">                        &quot;name&quot;: &quot;alicia&quot;</span>
 <span class="sd">                    }</span>
 <span class="sd">                }&#39; Content-Type:application/vnd.api+json</span>
+
+<span class="sd">            Change the author of posts/1 to people/2:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http PATCH http://localhost:6543/posts/1 data:=&#39;</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;type&quot;:&quot;posts&quot;, &quot;id&quot;: &quot;1&quot;,</span>
+<span class="sd">                    &quot;relationships&quot;: {</span>
+<span class="sd">                        &quot;author&quot;: {&quot;type&quot;: &quot;people&quot;, &quot;id&quot;: &quot;2&quot;}</span>
+<span class="sd">                    }</span>
+<span class="sd">                }&#39; Content-Type:application/vnd.api+json</span>
+
+<span class="sd">            Set the comments on posts/1 to be [comments/4, comments/5]:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http PATCH http://localhost:6543/posts/1 data:=&#39;</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;type&quot;:&quot;posts&quot;, &quot;id&quot;: &quot;1&quot;,</span>
+<span class="sd">                    &quot;relationships&quot;: {</span>
+<span class="sd">                        &quot;comments&quot;: [</span>
+<span class="sd">                            {&quot;type&quot;: &quot;comments&quot;, &quot;id&quot;: &quot;4&quot;},</span>
+<span class="sd">                            {&quot;type&quot;: &quot;comments&quot;, &quot;id&quot;: &quot;5&quot;}</span>
+<span class="sd">                        ]</span>
+<span class="sd">                    }</span>
+<span class="sd">                }&#39; Content-Type:application/vnd.api+json</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">single_item_query</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
@@ -522,14 +553,75 @@
         <span class="k">if</span> <span class="n">data_id</span> <span class="o">!=</span> <span class="n">req_id</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HTTPConflict</span><span class="p">(</span><span class="s1">&#39;JSON id ({}) does not match URL id ({}).&#39;</span><span class="o">.</span>
             <span class="n">format</span><span class="p">(</span><span class="n">data_id</span><span class="p">,</span> <span class="n">req_id</span><span class="p">))</span>
-        <span class="n">atts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span>
+        <span class="n">atts</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,{})</span>
         <span class="n">atts</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key_column</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">req_id</span>
-        <span class="c1"># TODO(Colin): deal with relationships</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">DBSession</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">atts</span><span class="p">))</span>
+
+        <span class="n">rels</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;relationships&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">for</span> <span class="n">relname</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">rels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">relname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationships</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span>
+                    <span class="s1">&#39;Collection {} has no relationship {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span><span class="p">,</span> <span class="n">relname</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">rel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationships</span><span class="p">[</span><span class="n">relname</span><span class="p">]</span>
+            <span class="n">rel_class</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">class_</span>
+            <span class="n">rel_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view_instance</span><span class="p">(</span><span class="n">rel_class</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">relname</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">rel_view</span><span class="o">.</span><span class="n">collection_name</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">HTTPConflict</span><span class="p">(</span>
+                        <span class="s1">&#39;Type {} does not match relationship type {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">rel_view</span><span class="o">.</span><span class="n">collection_name</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">HTTPBadRequest</span><span class="p">(</span>
+                        <span class="s1">&#39;An id is required in a resource identifier.&#39;</span>
+                    <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">rel_item</span> <span class="o">=</span> <span class="n">DBSession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+                        <span class="n">rel_class</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+                        <span class="n">load_only</span><span class="p">(</span><span class="n">rel_view</span><span class="o">.</span><span class="n">key_column</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">rel_view</span><span class="o">.</span><span class="n">key_column</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+                <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span><span class="s1">&#39;{}/{} not found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">rel_view</span><span class="o">.</span><span class="n">collection_name</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+                    <span class="p">))</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">relname</span><span class="p">,</span> <span class="n">rel_item</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">rel_items</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">res_ident</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">rel_item</span> <span class="o">=</span> <span class="n">DBSession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+                            <span class="n">rel_class</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+                            <span class="n">load_only</span><span class="p">(</span><span class="n">rel_view</span><span class="o">.</span><span class="n">key_column</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                            <span class="n">rel_view</span><span class="o">.</span><span class="n">key_column</span> <span class="o">==</span> <span class="n">res_ident</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+                    <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">HTTPNotFound</span><span class="p">(</span><span class="s1">&#39;{}/{} not found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">rel_view</span><span class="o">.</span><span class="n">collection_name</span><span class="p">,</span> <span class="n">res_ident</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+                        <span class="p">))</span>
+                    <span class="n">rel_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rel_item</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">relname</span><span class="p">,</span> <span class="n">rel_items</span><span class="p">)</span>
+
         <span class="n">DBSession</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;meta&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;updated&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">att</span> <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">atts</span> <span class="k">if</span> <span class="n">att</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_column</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                <span class="s1">&#39;updated&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="n">att</span> <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">atts</span>
+                            <span class="k">if</span> <span class="n">att</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_column</span><span class="o">.</span><span class="n">name</span>
+                    <span class="p">],</span>
+                    <span class="s1">&#39;relationships&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rels</span><span class="p">]</span>
+                <span class="p">}</span>
             <span class="p">}</span>
         <span class="p">}</span></div>
 

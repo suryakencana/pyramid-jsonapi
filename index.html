@@ -269,6 +269,29 @@ sqlalchemy.orm.session.Session or equivalent.</li>
 <span class="p">}</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
 </pre></div>
 </div>
+<p>Change the author of posts/1 to people/2:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">PATCH</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">posts</span><span class="o">/</span><span class="mi">1</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;posts&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;relationships&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;people&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
+</pre></div>
+</div>
+<p>Set the comments on posts/1 to be [comments/4, comments/5]:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span> <span class="n">PATCH</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6543</span><span class="o">/</span><span class="n">posts</span><span class="o">/</span><span class="mi">1</span> <span class="n">data</span><span class="p">:</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;posts&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;relationships&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;4&quot;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;5&quot;</span><span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span><span class="s1">&#39; Content-Type:application/vnd.api+json</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
