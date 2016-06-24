@@ -195,11 +195,8 @@
         <span class="p">)</span>
     <span class="n">model</span><span class="o">.</span><span class="n">_jsonapi_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">keycols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="c1"># Figure out what table model is from</span>
-    <span class="n">info</span> <span class="o">=</span> <span class="n">ModelInfo</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">collection_name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">collection_name</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">table_name</span>
+        <span class="n">collection_name</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
 
     <span class="c1"># Create a view class for use in the various add_view() calls below.</span>
     <span class="n">view</span> <span class="o">=</span> <span class="n">collection_view_factory</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">get_dbsession</span><span class="p">,</span> <span class="n">collection_name</span><span class="p">,</span>
@@ -1633,6 +1630,18 @@
 
 <div class="viewcode-block" id="CollectionViewBase.related_limit"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.related_limit">[docs]</a>    <span class="k">def</span> <span class="nf">related_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relationship</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Paging limit for related resources.</span>
+
+<span class="sd">        **Query Parameters**</span>
+
+<span class="sd">            **page[limit:relationships:&lt;relname&gt;]:** number of results to return</span>
+<span class="sd">            per page for related resource &lt;relname&gt;.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            relationship(sqlalchemy.orm.relationships.RelationshipProperty):</span>
+<span class="sd">                the relationship to get the limit for.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: paging limit for related resources.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">limit_comps</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;limit&#39;</span><span class="p">,</span> <span class="s1">&#39;relationships&#39;</span><span class="p">,</span> <span class="n">relationship</span><span class="o">.</span><span class="n">key</span> <span class="p">]</span>
         <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_limit</span>
@@ -1647,6 +1656,20 @@
 
 <div class="viewcode-block" id="CollectionViewBase.related_query"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.related_query">[docs]</a>    <span class="k">def</span> <span class="nf">related_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_id</span><span class="p">,</span> <span class="n">relationship</span><span class="p">,</span> <span class="n">id_only</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Construct query for related objects.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            obj_id (str): id of an item in this view&#39;s collection.</span>
+
+<span class="sd">            relationship (sqlalchemy.orm.relationships.RelationshipProperty):</span>
+<span class="sd">                the relationships to get related objects from.</span>
+
+<span class="sd">            id_only (bool): if id_only is ``True``, only query for the key</span>
+<span class="sd">                column (probably in order to build resource identifiers). If</span>
+<span class="sd">                id_only is False, query for all requested columns.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.orm.query.Query: query which will fetch related</span>
+<span class="sd">            object(s).</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">DBSession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbsession</span><span class="p">()</span>
         <span class="n">rel</span> <span class="o">=</span> <span class="n">relationship</span>
@@ -1687,14 +1710,17 @@
         <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Serialise an individual database item to JSON-API.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            item: item from query to serialise.</span>
-<span class="sd">            requested_includes (set): to be included as per request.</span>
-<span class="sd">            include_path (list):</span>
-<span class="sd">            included (dict): tracking included items.</span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            item: item to serialise.</span>
+
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            included (dict): dictionary to be filled with included resource</span>
+<span class="sd">                objects.</span>
+<span class="sd">            include_path (list): list tracking current include path for</span>
+<span class="sd">                recursive calls.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            dict: item dictionary.</span>
+<span class="sd">            dict: resource object dictionary.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">DBSession</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbsession</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">include_path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -1988,20 +2014,27 @@
             <span class="n">links</span><span class="p">[</span><span class="s1">&#39;last&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">route_url</span><span class="p">(</span><span class="n">route_name</span><span class="p">,</span><span class="n">_query</span><span class="o">=</span><span class="n">_query</span><span class="p">,</span> <span class="o">**</span><span class="n">req</span><span class="o">.</span><span class="n">matchdict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">links</span></div>
 
+    <span class="nd">@property</span>
     <span class="nd">@functools.lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
-<div class="viewcode-block" id="CollectionViewBase.requested_field_names"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.requested_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">requested_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get the sparse field names as a set from req params for type_name.</span>
+    <span class="k">def</span> <span class="nf">requested_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the sparse field names from request.</span>
 
-<span class="sd">        Return None if there was no sparse field param.</span>
+<span class="sd">        **Query Parameters**</span>
+
+<span class="sd">            **fields[&lt;collection&gt;]:** comma separated list of fields (attributes</span>
+<span class="sd">            or relationships) to include in data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            set: set of fields names.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">param</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="s1">&#39;fields[{}]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationships</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">requested_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2023,7 +2056,7 @@
 <span class="sd">                    }</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">{</span> <span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_field_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)}</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_field_names</span><span class="p">}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">requested_relationships</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2045,11 +2078,29 @@
 <span class="sd">                    }</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">{</span> <span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationships</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_field_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)}</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_field_names</span><span class="p">}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">requested_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Union of attributes and relationships.</span>
+
+<span class="sd">        **Query Parameters**</span>
+
+<span class="sd">            **fields[&lt;collection&gt;]:** comma separated list of fields (attributes</span>
+<span class="sd">            or relationships) to include in data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">                .. parsed-literal::</span>
+
+<span class="sd">                    {</span>
+<span class="sd">                        &lt;colname&gt;: &lt;column_object&gt;,</span>
+<span class="sd">                        ...</span>
+<span class="sd">                        &lt;relname&gt;: &lt;relationship_object&gt;,</span>
+<span class="sd">                        ...</span>
+<span class="sd">                    }</span>
+
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_attributes</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
@@ -2108,7 +2159,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">bad_include_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Return a set of invalid &#39;include&#39; parameters.&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;Return a set of invalid &#39;include&#39; parameters.</span>
+
+<span class="sd">        **Query Parameters**</span>
+
+<span class="sd">            **include:** comma separated list of related resources to include in</span>
+<span class="sd">            the include section.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            set: set of requested include paths with no corresponding attribute.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;include&#39;</span><span class="p">)</span>
         <span class="n">bad</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -2134,6 +2194,12 @@
     <span class="nd">@functools.lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
 <div class="viewcode-block" id="CollectionViewBase.view_instance"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.view_instance">[docs]</a>    <span class="k">def</span> <span class="nf">view_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;(memoised) get an instance of view class for model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (DeclarativeMeta): model class.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            class: subclass of CollectionViewBase providing view for ``model``.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">view_classes</span><span class="p">[</span><span class="n">model</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span></div></div>
 
@@ -2173,42 +2239,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">drop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">()</span>
         <span class="k">return</span> <span class="s2">&quot;reset&quot;</span></div></div>
-
-<div class="viewcode-block" id="ModelInfo"><a class="viewcode-back" href="../index.html#jsonapi.ModelInfo">[docs]</a><span class="k">class</span> <span class="nc">ModelInfo</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;Information about a model class (either table or relationship).</span>
-
-<span class="sd">    Use the :meth:`construct` factory method to create one.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        is_relationship (bool): True if info is for relationship.</span>
-<span class="sd">        model_class (class): sqlalchemy class which represents the table.</span>
-<span class="sd">        table_name (str): database table name.</span>
-<span class="sd">        relationship_name (str): (relationships only) name of relationship.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ModelInfo.construct"><a class="viewcode-back" href="../index.html#jsonapi.ModelInfo.construct">[docs]</a>    <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">model_part</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Construct a ModelInfo instance from a model or relationship class.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            model_part (class): model or relationship class.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            ModelInfo: ModelInfo class instance.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_part</span><span class="p">,</span> <span class="n">DeclarativeMeta</span><span class="p">):</span>
-            <span class="n">info</span><span class="o">.</span><span class="n">is_relationship</span> <span class="o">=</span> <span class="bp">False</span>
-            <span class="n">info</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">model_part</span><span class="p">)</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
-            <span class="n">info</span><span class="o">.</span><span class="n">model_class</span> <span class="o">=</span> <span class="n">model_part</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_part</span><span class="p">,</span> <span class="n">RelationshipProperty</span><span class="p">):</span>
-            <span class="n">info</span><span class="o">.</span><span class="n">is_relationship</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="n">info</span><span class="o">.</span><span class="n">relationship_name</span> <span class="o">=</span> <span class="n">model_part</span><span class="o">.</span><span class="n">key</span>
-            <span class="n">info</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">model_part</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
-            <span class="n">info</span><span class="o">.</span><span class="n">model_class</span> <span class="o">=</span> <span class="n">model_part</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">class_</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to deal with model_part class {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_part</span><span class="o">.</span><span class="n">__class__</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">info</span></div></div>
 </pre></div>
 
           </div>
