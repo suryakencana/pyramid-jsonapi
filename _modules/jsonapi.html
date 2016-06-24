@@ -1356,6 +1356,29 @@
 <span class="sd">                * raise 404 with ``not_found_message`` if it is a str;</span>
 
 <span class="sd">                * or return ``{&quot;data&quot;: None}`` if ``not_found_message`` is None.</span>
+
+<span class="sd">            identifier: return identifier if True, object if false.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: { resource object }</span>
+
+<span class="sd">                    optionally...</span>
+<span class="sd">                    &quot;included&quot;: [ included objects ]</span>
+<span class="sd">                }</span>
+
+<span class="sd">            or</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                { resource identifier }</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPNotFound: if the item is not found.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">included</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1379,6 +1402,36 @@
 
 <div class="viewcode-block" id="CollectionViewBase.collection_return"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.collection_return">[docs]</a>    <span class="k">def</span> <span class="nf">collection_return</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">identifiers</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Populate return dictionary for collections.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            q (sqlalchemy.orm.query.Query): query designed to return multiple items.</span>
+
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            count(int): Number of items the query will return (if known).</span>
+
+<span class="sd">            identifiers(bool): return identifiers if True, objects if false.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: dict in the form:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &quot;data&quot;: [ resource objects ]</span>
+
+<span class="sd">                    optionally...</span>
+<span class="sd">                    &quot;included&quot;: [ included objects ]</span>
+<span class="sd">                }</span>
+
+<span class="sd">            or</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                [ resource identifiers ]</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HTTPBadRequest: If a count was not supplied and an attempt to call</span>
+<span class="sd">            q.count() failed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># Get info for query.</span>
         <span class="n">qinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection_query_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
@@ -1425,6 +1478,22 @@
 
 <div class="viewcode-block" id="CollectionViewBase.query_add_sorting"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.query_add_sorting">[docs]</a>    <span class="k">def</span> <span class="nf">query_add_sorting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Add sorting to query.</span>
+
+<span class="sd">        Use information from the ``sort`` query parameter (via</span>
+<span class="sd">        :py:func:`collection_query_info`) to contruct an ``order_by`` clause on</span>
+<span class="sd">        the query.</span>
+
+<span class="sd">        See Also:</span>
+<span class="sd">            ``_sort`` key from :py:func:`collection_query_info`</span>
+
+<span class="sd">        **Query Parameters**</span>
+<span class="sd">            **sort:** comma separated list of sort keys.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            q (sqlalchemy.orm.query.Query): query</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.orm.query.Query: query with ``order_by`` clause.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># Get info for query.</span>
         <span class="n">qinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection_query_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
@@ -1465,6 +1534,64 @@
 
 <div class="viewcode-block" id="CollectionViewBase.query_add_filtering"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.query_add_filtering">[docs]</a>    <span class="k">def</span> <span class="nf">query_add_filtering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Add filtering clauses to query.</span>
+
+<span class="sd">        Use information from the ``filter`` query parameter (via</span>
+<span class="sd">        :py:func:`collection_query_info`) to filter query results.</span>
+
+<span class="sd">        Filter parameter structure:</span>
+
+<span class="sd">            ``filter[&lt;attribute&gt;:&lt;op&gt;]=&lt;value&gt;``</span>
+
+<span class="sd">        where:</span>
+
+<span class="sd">            ``attribute`` is an attribute of the queried object type.</span>
+
+<span class="sd">            ``op`` is the comparison operator.</span>
+
+<span class="sd">            ``value`` is the value the comparison operator should compare to.</span>
+
+<span class="sd">        Valid comparison operators:</span>
+
+<span class="sd">            * ``eq`` as sqlalchemy ``__eq__``</span>
+<span class="sd">            * ``ne`` as sqlalchemy ``__ne__``</span>
+<span class="sd">            * ``startswith`` as sqlalchemy ``startswith``</span>
+<span class="sd">            * ``endswith`` as sqlalchemy ``endswith``</span>
+<span class="sd">            * ``contains`` as sqlalchemy ``contains``</span>
+<span class="sd">            * ``lt`` as sqlalchemy ``__lt__``</span>
+<span class="sd">            * ``gt`` as sqlalchemy ``__gt__``</span>
+<span class="sd">            * ``le`` as sqlalchemy ``__le__``</span>
+<span class="sd">            * ``ge`` as sqlalchemy ``__ge__``</span>
+<span class="sd">            * ``like`` or ``ilike`` as sqlalchemy ``like`` or ``ilike``, except</span>
+<span class="sd">              replace any &#39;*&#39; with &#39;%&#39; (so that &#39;*&#39; acts as a wildcard)</span>
+
+<span class="sd">        See Also:</span>
+<span class="sd">            ``_filters`` key from :py:func:`collection_query_info`</span>
+
+<span class="sd">        **Query Parameters**</span>
+<span class="sd">            **filter[&lt;attribute&gt;:&lt;op&gt;]:** filter operation.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            q (sqlalchemy.orm.query.Query): query</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sqlalchemy.orm.query.Query: filtered query.</span>
+
+<span class="sd">        Examples:</span>
+
+<span class="sd">            Get people whose name is &#39;alice&#39;</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http GET http://localhost:6543/people?filter[name:eq]=alice</span>
+
+<span class="sd">            Get posts published after 2015-01-03:</span>
+
+<span class="sd">            .. parsed-literal::</span>
+
+<span class="sd">                http GET http://localhost:6543/posts?filter[published_at:gt]=2015-01-03</span>
+
+<span class="sd">        Todo:</span>
+<span class="sd">            Support dotted (relationship) attribute specifications.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">qinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection_query_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
         <span class="c1"># Filters</span>

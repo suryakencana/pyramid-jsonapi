@@ -773,11 +773,36 @@ id:</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first"><strong>not_found_message</strong> (<em>str or None</em>) &#8211; if an item is not found either:</p>
-<ul class="last simple">
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><strong>not_found_message</strong> (<em>str or None</em>) &#8211; if an item is not found either:<ul>
 <li>raise 404 with <code class="docutils literal"><span class="pre">not_found_message</span></code> if it is a str;</li>
 <li>or return <code class="docutils literal"><span class="pre">{&quot;data&quot;:</span> <span class="pre">None}</span></code> if <code class="docutils literal"><span class="pre">not_found_message</span></code> is None.</li>
 </ul>
+</li>
+<li><strong>identifier</strong> &#8211; return identifier if True, object if false.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>dict in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="n">resource</span> <span class="nb">object</span> <span class="p">}</span>
+
+    <span class="n">optionally</span><span class="o">...</span>
+    <span class="s2">&quot;included&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">included</span> <span class="n">objects</span> <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="n">resource</span> <span class="n">identifier</span> <span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code> &#8211; if the item is not found.</p>
 </td>
 </tr>
 </tbody>
@@ -788,18 +813,138 @@ id:</p>
 <dt id="jsonapi.CollectionViewBase.collection_return">
 <code class="descname">collection_return</code><span class="sig-paren">(</span><em>q</em>, <em>count=None</em>, <em>identifiers=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.collection_return"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.collection_return" title="Permalink to this definition">¶</a></dt>
 <dd><p>Populate return dictionary for collections.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>q</strong> (<em>sqlalchemy.orm.query.Query</em>) &#8211; query designed to return multiple items.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><strong>count</strong> (<em>int</em>) &#8211; Number of items the query will return (if known).</li>
+<li><strong>identifiers</strong> (<em>bool</em>) &#8211; return identifiers if True, objects if false.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>dict in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">resource</span> <span class="n">objects</span> <span class="p">]</span>
+
+    <span class="n">optionally</span><span class="o">...</span>
+    <span class="s2">&quot;included&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">included</span> <span class="n">objects</span> <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span> <span class="n">resource</span> <span class="n">identifiers</span> <span class="p">]</span>
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code> &#8211; If a count was not supplied and an attempt to call</li>
+<li>q.count() failed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="jsonapi.CollectionViewBase.query_add_sorting">
 <code class="descname">query_add_sorting</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.query_add_sorting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.query_add_sorting" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add sorting to query.</p>
+<p>Use information from the <code class="docutils literal"><span class="pre">sort</span></code> query parameter (via
+<a class="reference internal" href="#jsonapi.CollectionViewBase.collection_query_info" title="jsonapi.CollectionViewBase.collection_query_info"><code class="xref py py-func docutils literal"><span class="pre">collection_query_info()</span></code></a>) to contruct an <code class="docutils literal"><span class="pre">order_by</span></code> clause on
+the query.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="docutils literal"><span class="pre">_sort</span></code> key from <a class="reference internal" href="#jsonapi.CollectionViewBase.collection_query_info" title="jsonapi.CollectionViewBase.collection_query_info"><code class="xref py py-func docutils literal"><span class="pre">collection_query_info()</span></code></a></p>
+</div>
+<dl class="docutils">
+<dt><strong>Query Parameters</strong></dt>
+<dd><strong>sort:</strong> comma separated list of sort keys.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>q</strong> (<em>sqlalchemy.orm.query.Query</em>) &#8211; query</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">query with <code class="docutils literal"><span class="pre">order_by</span></code> clause.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">sqlalchemy.orm.query.Query</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="jsonapi.CollectionViewBase.query_add_filtering">
 <code class="descname">query_add_filtering</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.query_add_filtering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.query_add_filtering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add filtering clauses to query.</p>
+<p>Use information from the <code class="docutils literal"><span class="pre">filter</span></code> query parameter (via
+<a class="reference internal" href="#jsonapi.CollectionViewBase.collection_query_info" title="jsonapi.CollectionViewBase.collection_query_info"><code class="xref py py-func docutils literal"><span class="pre">collection_query_info()</span></code></a>) to filter query results.</p>
+<p>Filter parameter structure:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">filter[&lt;attribute&gt;:&lt;op&gt;]=&lt;value&gt;</span></code></div></blockquote>
+<p>where:</p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">attribute</span></code> is an attribute of the queried object type.</p>
+<p><code class="docutils literal"><span class="pre">op</span></code> is the comparison operator.</p>
+<p><code class="docutils literal"><span class="pre">value</span></code> is the value the comparison operator should compare to.</p>
+</div></blockquote>
+<p>Valid comparison operators:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">eq</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">__eq__</span></code></li>
+<li><code class="docutils literal"><span class="pre">ne</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">__ne__</span></code></li>
+<li><code class="docutils literal"><span class="pre">startswith</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">startswith</span></code></li>
+<li><code class="docutils literal"><span class="pre">endswith</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">endswith</span></code></li>
+<li><code class="docutils literal"><span class="pre">contains</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">contains</span></code></li>
+<li><code class="docutils literal"><span class="pre">lt</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">__lt__</span></code></li>
+<li><code class="docutils literal"><span class="pre">gt</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">__gt__</span></code></li>
+<li><code class="docutils literal"><span class="pre">le</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">__le__</span></code></li>
+<li><code class="docutils literal"><span class="pre">ge</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">__ge__</span></code></li>
+<li><code class="docutils literal"><span class="pre">like</span></code> or <code class="docutils literal"><span class="pre">ilike</span></code> as sqlalchemy <code class="docutils literal"><span class="pre">like</span></code> or <code class="docutils literal"><span class="pre">ilike</span></code>, except
+replace any &#8216;*&#8217; with &#8216;%&#8217; (so that &#8216;*&#8217; acts as a wildcard)</li>
+</ul>
+</div></blockquote>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="docutils literal"><span class="pre">_filters</span></code> key from <a class="reference internal" href="#jsonapi.CollectionViewBase.collection_query_info" title="jsonapi.CollectionViewBase.collection_query_info"><code class="xref py py-func docutils literal"><span class="pre">collection_query_info()</span></code></a></p>
+</div>
+<dl class="docutils">
+<dt><strong>Query Parameters</strong></dt>
+<dd><strong>filter[&lt;attribute&gt;:&lt;op&gt;]:</strong> filter operation.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>q</strong> (<em>sqlalchemy.orm.query.Query</em>) &#8211; query</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">filtered query.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">sqlalchemy.orm.query.Query</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Get people whose name is &#8216;alice&#8217;</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>http GET http://localhost:6543/people?filter[name:eq]=alice
+</pre></div>
+</div>
+<p>Get posts published after 2015-01-03:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>http GET http://localhost:6543/posts?filter[published_at:gt]=2015-01-03
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
