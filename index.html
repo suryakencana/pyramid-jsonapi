@@ -971,7 +971,7 @@ per page for related resource &lt;relname&gt;.</div></blockquote>
 
 <dl class="method">
 <dt id="jsonapi.CollectionViewBase.related_query">
-<code class="descname">related_query</code><span class="sig-paren">(</span><em>obj_id</em>, <em>relationship</em>, <em>id_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.related_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.related_query" title="Permalink to this definition">¶</a></dt>
+<code class="descname">related_query</code><span class="sig-paren">(</span><em>obj_id</em>, <em>relationship</em>, <em>full_object=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jsonapi.html#CollectionViewBase.related_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jsonapi.CollectionViewBase.related_query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct query for related objects.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -980,9 +980,10 @@ per page for related resource &lt;relname&gt;.</div></blockquote>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>obj_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; id of an item in this view&#8217;s collection.</li>
 <li><strong>relationship</strong> (<em>sqlalchemy.orm.relationships.RelationshipProperty</em>) &#8211; the relationships to get related objects from.</li>
-<li><strong>id_only</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if id_only is <code class="docutils literal"><span class="pre">True</span></code>, only query for the key
-column (probably in order to build resource identifiers). If
-id_only is False, query for all requested columns.</li>
+<li><strong>full_object</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if full_object is <code class="docutils literal"><span class="pre">True</span></code>, query for all
+requested columns (probably to build resource objects). If
+full_object is False, only query for the key column (probably
+to build resource identifiers).</li>
 </ul>
 </td>
 </tr>

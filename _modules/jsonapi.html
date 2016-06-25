@@ -1012,7 +1012,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
         <span class="c1"># Set up the query</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">related_query</span><span class="p">(</span><span class="n">obj_id</span><span class="p">,</span> <span class="n">rel</span><span class="p">,</span> <span class="n">id_only</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">related_query</span><span class="p">(</span><span class="n">obj_id</span><span class="p">,</span> <span class="n">rel</span><span class="p">,</span> <span class="n">full_object</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">direction</span> <span class="ow">is</span> <span class="n">ONETOMANY</span> <span class="ow">or</span> <span class="n">rel</span><span class="o">.</span><span class="n">direction</span> <span class="ow">is</span> <span class="n">MANYTOMANY</span><span class="p">:</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">rel_view</span><span class="o">.</span><span class="n">query_add_sorting</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
@@ -1654,7 +1654,7 @@
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_limit</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CollectionViewBase.related_query"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.related_query">[docs]</a>    <span class="k">def</span> <span class="nf">related_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_id</span><span class="p">,</span> <span class="n">relationship</span><span class="p">,</span> <span class="n">id_only</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CollectionViewBase.related_query"><a class="viewcode-back" href="../index.html#jsonapi.CollectionViewBase.related_query">[docs]</a>    <span class="k">def</span> <span class="nf">related_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_id</span><span class="p">,</span> <span class="n">relationship</span><span class="p">,</span> <span class="n">full_object</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Construct query for related objects.</span>
 
 <span class="sd">        Parameters:</span>
@@ -1663,9 +1663,10 @@
 <span class="sd">            relationship (sqlalchemy.orm.relationships.RelationshipProperty):</span>
 <span class="sd">                the relationships to get related objects from.</span>
 
-<span class="sd">            id_only (bool): if id_only is ``True``, only query for the key</span>
-<span class="sd">                column (probably in order to build resource identifiers). If</span>
-<span class="sd">                id_only is False, query for all requested columns.</span>
+<span class="sd">            full_object (bool): if full_object is ``True``, query for all</span>
+<span class="sd">                requested columns (probably to build resource objects). If</span>
+<span class="sd">                full_object is False, only query for the key column (probably</span>
+<span class="sd">                to build resource identifiers).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            sqlalchemy.orm.query.Query: query which will fetch related</span>
@@ -1677,12 +1678,12 @@
         <span class="n">rel_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view_instance</span><span class="p">(</span><span class="n">rel_class</span><span class="p">)</span>
         <span class="n">local_col</span><span class="p">,</span> <span class="n">rem_col</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">local_remote_pairs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">DBSession</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">rel_class</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">id_only</span><span class="p">:</span>
-            <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">load_only</span><span class="p">())</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">full_object</span><span class="p">:</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
                 <span class="n">load_only</span><span class="p">(</span><span class="o">*</span><span class="n">rel_view</span><span class="o">.</span><span class="n">requested_query_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">load_only</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">direction</span> <span class="ow">is</span> <span class="n">ONETOMANY</span><span class="p">:</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">obj_id</span> <span class="o">==</span> <span class="n">rem_col</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">rel</span><span class="o">.</span><span class="n">direction</span> <span class="ow">is</span> <span class="n">MANYTOMANY</span><span class="p">:</span>
