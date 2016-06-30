@@ -44,17 +44,182 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pyramid-jsonapi-documentation">
-<h1>pyramid-jsonapi Documentation<a class="headerlink" href="#pyramid-jsonapi-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
+  <div class="toctree-wrapper compound">
 <ul class="simple">
 </ul>
 </div>
+<div class="section" id="pyramid-jsonapi-documentation">
+<h1>pyramid-jsonapi Documentation<a class="headerlink" href="#pyramid-jsonapi-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Create a JSON-API (<a class="reference external" href="http://jsonapi.org/">http://jsonapi.org/</a>) standard API from a database using
+the sqlAlchemy ORM and pyramid framework.</p>
+<p>The core idea behind pyramid-jsonapi is to create a working JSON-API
+automatically, starting from the sort of <code class="docutils literal"><span class="pre">models.py</span></code> file shipped with a
+typical pyramid + sqlalchemy application.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>There is a test release on testpypi:
+<a class="reference external" href="https://testpypi.python.org/pypi?:action=display&amp;name=pyramid_jsonapi/">https://testpypi.python.org/pypi?:action=display&amp;name=pyramid_jsonapi/</a>. You
+can install that (perhaps into a virtualenv for play purposes) with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install -i https://testpypi.python.org/pypi pyramid_jsonapi
+</pre></div>
+</div>
+<p>or, since there is only one file, you can download the development version from
+<a class="reference external" href="https://github.com/colinhiggs/pyramid-jsonapi/">https://github.com/colinhiggs/pyramid-jsonapi/</a> and copy the pyramid_jsonapi
+directory into your PYTHONPATH or into your project.</p>
+</div>
+<div class="section" id="auto-creating-an-api">
+<h2>Auto-Creating an API<a class="headerlink" href="#auto-creating-an-api" title="Permalink to this headline">¶</a></h2>
+<p>Declare your models somewhere using sqlalchemy&#8217;s
+<code class="xref py py-func docutils literal"><span class="pre">sqlalchemy.ext.declarative.declarative_base()</span></code>. In this documentation we
+assume that you have done so in a file called <code class="docutils literal"><span class="pre">models.py</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;people&#39;</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">BigInteger</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Text</span><span class="p">)</span>
+    <span class="n">blogs</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s1">&#39;Blog&#39;</span><span class="p">,</span> <span class="n">backref</span><span class="o">=</span><span class="s1">&#39;owner&#39;</span><span class="p">)</span>
+    <span class="n">posts</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s1">&#39;Post&#39;</span><span class="p">,</span> <span class="n">backref</span><span class="o">=</span><span class="s1">&#39;author&#39;</span><span class="p">)</span>
+
+<span class="c1"># and the rest...</span>
+</pre></div>
+</div>
+<p>If you are happy with the defaults, you can get away with the following
+additions to the standard pyramid alchemy scaffold&#8217;s top level <code class="docutils literal"><span class="pre">__init__.py</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyramid_jsonapi</span>
+<span class="c1"># Or &#39;from . import pyramid_jsonapi&#39; if you copied pyramid_jsonapi directly</span>
+<span class="c1"># into your project.</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">models</span> <span class="c1"># Your models module.</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">):</span>
+
+  <span class="c1"># The usual stuff from the pyramid alchemy scaffold.</span>
+  <span class="n">engine</span> <span class="o">=</span> <span class="n">engine_from_config</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;sqlalchemy.&#39;</span><span class="p">)</span>
+  <span class="n">models</span><span class="o">.</span><span class="n">DBSession</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+  <span class="n">models</span><span class="o">.</span><span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">bind</span> <span class="o">=</span> <span class="n">engine</span>
+  <span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
+
+  <span class="c1"># pyramid_jsonapi uses the renderer labeled &#39;json&#39;. As usual, if you have</span>
+  <span class="c1"># any types to serialise that the default JSON renderer can&#39;t handle, you</span>
+  <span class="c1"># must alter it. For example:</span>
+  <span class="n">renderer</span> <span class="o">=</span> <span class="n">JSON</span><span class="p">()</span>
+  <span class="n">renderer</span><span class="o">.</span><span class="n">add_adapter</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime_adapter</span><span class="p">)</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">add_renderer</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="n">renderer</span><span class="p">)</span>
+
+  <span class="c1"># Create the routes and views automagically:</span>
+  <span class="n">pyramid_jsonapi</span><span class="o">.</span><span class="n">create_jsonapi_using_magic_and_pixie_dust</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">view</span><span class="p">:</span> <span class="n">models</span><span class="o">.</span><span class="n">DBSession</span>
+  <span class="p">)</span>
+  <span class="c1"># The third argument above should be a callable which accepts a</span>
+  <span class="c1"># CollectionView instance as an argument and returns a database session.</span>
+  <span class="c1"># Notably the request is available as view.request, so if you&#39;re doing</span>
+  <span class="c1"># something like this post</span>
+  <span class="c1"># https://metaclassical.com/what-the-zope-transaction-manager-means-to-me-and-you</span>
+  <span class="c1"># you can return the per-request session. In this case we just return the</span>
+  <span class="c1"># usual DBSession from the models module.</span>
+
+  <span class="c1"># Routes and views are added imperatively, so no need for a scan - unless</span>
+  <span class="c1"># you have defined other routes and views declaratively.</span>
+</pre></div>
+</div>
+<p>Yes, there really is a method called
+<a class="reference internal" href="#pyramid_jsonapi.create_jsonapi_using_magic_and_pixie_dust" title="pyramid_jsonapi.create_jsonapi_using_magic_and_pixie_dust"><code class="xref py py-func docutils literal"><span class="pre">pyramid_jsonapi.create_jsonapi_using_magic_and_pixie_dust()</span></code></a>. No, you
+don&#8217;t <em>have</em> to call it that. If you are feeling more sensible you can use the
+synonym <a class="reference internal" href="#pyramid_jsonapi.create_jsonapi" title="pyramid_jsonapi.create_jsonapi"><code class="xref py py-func docutils literal"><span class="pre">pyramid_jsonapi.create_jsonapi()</span></code></a>.</p>
+<div class="section" id="calling-pyramid-jsonapi-create-jsonapi">
+<h3>Calling <a class="reference internal" href="#pyramid_jsonapi.create_jsonapi" title="pyramid_jsonapi.create_jsonapi"><code class="xref py py-func docutils literal"><span class="pre">pyramid_jsonapi.create_jsonapi()</span></code></a><a class="headerlink" href="#calling-pyramid-jsonapi-create-jsonapi" title="Permalink to this headline">¶</a></h3>
+<p>Since <a class="reference internal" href="#pyramid_jsonapi.create_jsonapi" title="pyramid_jsonapi.create_jsonapi"><code class="xref py py-func docutils literal"><span class="pre">pyramid_jsonapi.create_jsonapi()</span></code></a> (or the one with pixie dust)
+sits at the centre of the API creation, we&#8217;ll spend a little time now explaining
+the three mandatory arguments.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">config</span></code> is the usual Configurator object used in pyramid.</li>
+<li><code class="docutils literal"><span class="pre">models</span></code> can either be a module (as in the example above) defining classes
+which inherit from <code class="xref py py-func docutils literal"><span class="pre">declarative_base()</span></code> or an iterable of such classes.</li>
+<li><code class="docutils literal"><span class="pre">get_dbsession</span></code> (to which we passed the lambda function above) should be a
+callable which accepts an instance of
+<a class="reference internal" href="#pyramid_jsonapi.CollectionViewBase" title="pyramid_jsonapi.CollectionViewBase"><code class="xref py py-class docutils literal"><span class="pre">pyramid_jsonapi.CollectionViewBase</span></code></a> and returns a
+<code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.orm.session.Session</span></code> (or an equivalent, like a
+<code class="xref py py-func docutils literal"><span class="pre">sqlalchemy.orm.scoped_session()</span></code>)</li>
+</ul>
+</div>
+<div class="section" id="auto-create-assumptions">
+<h3>Auto-Create Assumptions<a class="headerlink" href="#auto-create-assumptions" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Your model classes all inherit from a base class returned by sqlalchemy&#8217;s
+<code class="docutils literal"><span class="pre">declarative-base()</span></code>.</li>
+<li>Each model has a single primary_key column. This will be auto-detected and
+copied to an attribute called <code class="docutils literal"><span class="pre">_jsonapi_id</span></code>, so...</li>
+<li>...don&#8217;t create any columns called <code class="docutils literal"><span class="pre">_jsonapi_id</span></code>.</li>
+<li>You are happy to give your collection end-points the same name as the
+corresponding database table (for now).</li>
+<li>You have defined any relationships to exposed via the API using
+<code class="docutils literal"><span class="pre">sqlalchemy.orm.relationship()</span></code> (or <code class="docutils literal"><span class="pre">backref()</span></code>).</li>
+<li>You are happy to expose any so defined relationship via a relationship URL.</li>
+</ol>
+<p>Some of those behaviours can be adjusted, see <a class="reference internal" href="#customising-the-generated-api">Customising the Generated API</a>.</p>
+</div>
+<div class="section" id="trying-your-api-out">
+<h3>Trying Your API Out<a class="headerlink" href="#trying-your-api-out" title="Permalink to this headline">¶</a></h3>
+<p>You should now have a working JSON-API. A quick test. The following assumes that
+you have already created and set up a pyramid project in development mode
+(<code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code> in pyramid 1.6, <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span></code> in pyramid 1.7).</p>
+<p>Make sure you have activated your virtualenv:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">source</span> env/bin/activate
+</pre></div>
+</div>
+<p>Start the server:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ pserv your_project/development.ini
+</pre></div>
+</div>
+<p>Using the rather lovely httpie <a class="reference external" href="https://github.com/jkbrzt/httpie/">https://github.com/jkbrzt/httpie/</a> to test:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http http://localhost:6543/people
+
+
+HTTP/1.1 <span class="m">200</span> OK
+Content-Length: 1387
+Content-Type: application/vnd.api+json<span class="p">;</span> <span class="nv">charset</span><span class="o">=</span>UTF-8
+Date: Fri, <span class="m">28</span> Aug <span class="m">2015</span> 20:22:46 GMT
+Server: waitress
+
+<span class="o">{</span>
+  <span class="s2">&quot;data&quot;</span>: <span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">&quot;attributes&quot;</span>: <span class="o">{</span>
+      <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;alice&quot;</span>
+    <span class="o">}</span>,
+    <span class="s2">&quot;id&quot;</span>: <span class="s2">&quot;1&quot;</span>,
+    <span class="s2">&quot;links&quot;</span>: <span class="o">{</span>
+      <span class="s2">&quot;self&quot;</span>: <span class="s2">&quot;http://localhost:6543/people/1&quot;</span>
+    <span class="o">}</span>,
+    <span class="s2">&quot;relationships&quot;</span>: <span class="o">{</span>
+    ...
+  <span class="o">}</span>
+  ...
+  <span class="o">]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>See <code class="docutils literal"><span class="pre">test_project/test_project/__init__.py</span></code> for a fully working
+<code class="docutils literal"><span class="pre">__init__.py</span></code> file.</p>
+<p>You don&#8217;t need a <code class="docutils literal"><span class="pre">views.py</span></code> unless you have some other routes and views.</p>
+</div>
+</div>
+<div class="section" id="customising-the-generated-api">
+<h2>Customising the Generated API<a class="headerlink" href="#customising-the-generated-api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="selectively-passing-models-for-api-generation">
+<h3>Selectively Passing Models for API Generation<a class="headerlink" href="#selectively-passing-models-for-api-generation" title="Permalink to this headline">¶</a></h3>
+<p>Your database may have some tables which you do not wish to expose as collections in the generated API. You can be selective by:</p>
+<ul class="simple">
+<li>writing a models module with only the model classes you wish to expose; or</li>
+<li>passing an iterable of model classes to
+<a class="reference internal" href="#pyramid_jsonapi.create_jsonapi" title="pyramid_jsonapi.create_jsonapi"><code class="xref py py-func docutils literal"><span class="pre">pyramid_jsonapi.create_jsonapi()</span></code></a>.</li>
+</ul>
+</div>
+</div>
 <div class="section" id="reference-documentation">
 <h2>Reference Documentation<a class="headerlink" href="#reference-documentation" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="pyramid-jsonapi-module">
-<h3><a class="reference internal" href="#module-pyramid_jsonapi" title="pyramid_jsonapi"><code class="xref py py-mod docutils literal"><span class="pre">pyramid_jsonapi</span></code></a> Module<a class="headerlink" href="#pyramid-jsonapi-module" title="Permalink to this headline">¶</a></h3>
-<span class="target" id="module-pyramid_jsonapi"></span><p>Tools for constructing a JSON-API from sqlalchemy models in Pyramid.</p>
+<div class="section" id="module-pyramid_jsonapi">
+<span id="pyramid-jsonapi-module"></span><h3><a class="reference internal" href="#module-pyramid_jsonapi" title="pyramid_jsonapi"><code class="xref py py-mod docutils literal"><span class="pre">pyramid_jsonapi</span></code></a> Module<a class="headerlink" href="#module-pyramid_jsonapi" title="Permalink to this headline">¶</a></h3>
+<p>Tools for constructing a JSON-API from sqlalchemy models in Pyramid.</p>
 <dl class="function">
 <dt id="pyramid_jsonapi.create_jsonapi">
 <code class="descclassname">pyramid_jsonapi.</code><code class="descname">create_jsonapi</code><span class="sig-paren">(</span><em>config</em>, <em>models</em>, <em>get_dbsession</em>, <em>engine=None</em>, <em>test_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyramid_jsonapi.html#create_jsonapi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyramid_jsonapi.create_jsonapi" title="Permalink to this definition">¶</a></dt>
@@ -1359,8 +1524,19 @@ the database</p>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">pyramid-jsonapi Documentation</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#auto-creating-an-api">Auto-Creating an API</a><ul>
+<li><a class="reference internal" href="#calling-pyramid-jsonapi-create-jsonapi">Calling <code class="docutils literal"><span class="pre">pyramid_jsonapi.create_jsonapi()</span></code></a></li>
+<li><a class="reference internal" href="#auto-create-assumptions">Auto-Create Assumptions</a></li>
+<li><a class="reference internal" href="#trying-your-api-out">Trying Your API Out</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#customising-the-generated-api">Customising the Generated API</a><ul>
+<li><a class="reference internal" href="#selectively-passing-models-for-api-generation">Selectively Passing Models for API Generation</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#reference-documentation">Reference Documentation</a><ul>
-<li><a class="reference internal" href="#pyramid-jsonapi-module"><code class="docutils literal"><span class="pre">pyramid_jsonapi</span></code> Module</a></li>
+<li><a class="reference internal" href="#module-pyramid_jsonapi"><code class="docutils literal"><span class="pre">pyramid_jsonapi</span></code> Module</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
