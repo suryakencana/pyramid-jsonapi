@@ -393,7 +393,7 @@ def collection_view_factory(
 
     CollectionView.multi_source = {
         'get': deque([CollectionView.ms_db_get]),
-        'patch': deque([CollectionView.ms_db_patch])
+        'patch': deque([CollectionView.ms_db_patch]),
     }
 
     return CollectionView
@@ -486,7 +486,7 @@ class CollectionViewBase:
 
         return new_f
 
-    def ms_db_get(self):
+    def ms_db_get(self, sofar):
         '''Get item from database.'''
         return self.single_return(
             self.single_item_query,
@@ -533,7 +533,7 @@ class CollectionViewBase:
         '''
         ret = RecursiveChainMap({})
         for getter in self.multi_source['get']:
-            ret.maps.append(getter(self))
+            ret.maps.appendleft(getter(self, ret))
         for callback in self.callbacks['after_get']:
             ret = callback(self, ret)
         return ret
