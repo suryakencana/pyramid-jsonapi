@@ -35,6 +35,7 @@ from collections import (
     ChainMap
 )
 import collections.abc
+from itertools import islice
 
 from sqlalchemy.orm import load_only
 from sqlalchemy.exc import DBAPIError
@@ -390,9 +391,9 @@ def collection_view_factory(
             deque(),                            # args: parent_item(sqlalchemy)
     }
 
-    CollectionView.getters = {
-        'get': deque([CollectionView.getter_db_get]),
-
+    CollectionView.multi_source = {
+        'get': deque([CollectionView.ms_db_get]),
+        'patch': deque([CollectionView.ms_db_patch])
     }
 
     return CollectionView
@@ -485,7 +486,7 @@ class CollectionViewBase:
 
         return new_f
 
-    def getter_db_get(self, prev):
+    def ms_db_get(self):
         '''Get item from database.'''
         return self.single_return(
             self.single_item_query,
@@ -531,7 +532,7 @@ class CollectionViewBase:
                 http GET http://localhost:6543/people/1
         '''
         ret = RecursiveChainMap({})
-        for getter in self.getters['get']:
+        for getter in self.multi_source['get']:
             ret.maps.append(getter(self))
         for callback in self.callbacks['after_get']:
             ret = callback(self, ret)
@@ -617,7 +618,7 @@ class CollectionViewBase:
                     self.collection_name, self.request.matchdict['id']
                 )
             )
-        DBSession = self.get_dbsession()
+
         data = self.request.json_body['data']
         req_id = self.request.matchdict['id']
         data_id = data.get('id')
@@ -633,20 +634,59 @@ class CollectionViewBase:
                     data_id, req_id
                 )
             )
+
+        handled = set()
+        sofar = RecursiveChainMap({
+            'meta': {
+                'updated': {
+                    'attributes': [],
+                    'relationships': []
+                }
+            }
+        })
+        for patcher in self.multi_source['patch']:
+            patcher_handled, patcher_doc = patcher(self, sofar)
+            handled |= patcher_handled
+            sofar.maps.appendleft(patcher_doc)
+
+        unhandled_rels = set(data.get('relationships', {})) - handled
+        if unhandled_rels:
+            raise HTTPNotFound(
+                'Collection {} has no relationships {}'.format(
+                    self.collection_name, unhandled_rels
+                )
+            )
+        unhandled_atts = set(data.get('attributes', {})) - handled
+        if unhandled_atts:
+            raise HTTPNotFound(
+                'Collection {} has no attributes {}'.format(
+                    self.collection_name, unhandled_atts
+                )
+            )
+
+        return sofar
+
+    def ms_db_patch(self, sofar):
+        ''''''
+        DBSession = self.get_dbsession()
+        req_id = self.request.matchdict['id']
+        data = self.request.json_body['data']
         for callback in self.callbacks['before_patch']:
             data = callback(self, data)
-        atts = data.get('attributes', {})
+
+        atts = {
+            k: v for k, v in data.get('attributes', {}).items()
+            if k in self.attributes
+        }
         atts[self.key_column.name] = req_id
         item = DBSession.merge(self.model(**atts))
 
         rels = data.get('relationships', {})
+        rels_handled = set()
         for relname, data in rels.items():
             if relname not in self.relationships:
-                raise HTTPNotFound(
-                    'Collection {} has no relationship {}'.format(
-                        self.collection_name, relname
-                    )
-                )
+                continue
+            rels_handled.add(relname)
             rel = self.relationships[relname]
             rel_class = rel.mapper.class_
             rel_view = self.view_instance(rel_class)
@@ -689,7 +729,7 @@ class CollectionViewBase:
                 setattr(item, relname, rel_items)
 
         DBSession.flush()
-        return {
+        return set(atts) | rels_handled, {
             'meta': {
                 'updated': {
                     'attributes': [
@@ -2563,7 +2603,7 @@ class RecursiveChainMap(collections.abc.Mapping):
     '''ChainMap that will look recursively into nested mappings.'''
 
     def __init__(self, *maps):
-        self.maps = [m for m in maps]
+        self.maps = deque(maps)
         for m in maps:
             if not isinstance(m, collections.abc.Mapping):
                 raise TypeError(
@@ -2587,7 +2627,7 @@ class RecursiveChainMap(collections.abc.Mapping):
         pos = 0
         for map_ in self.maps:
             for key in map_:
-                if key not in RecursiveChainMap(*self.maps[:pos]):
+                if key not in RecursiveChainMap(*deque(islice(self.maps, 0, pos))):
                     yield key
             pos = pos + 1
 
