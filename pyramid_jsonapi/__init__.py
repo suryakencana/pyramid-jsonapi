@@ -30,7 +30,11 @@ import psycopg2
 import functools
 import types
 import importlib
-from collections import deque
+from collections import (
+    deque,
+    ChainMap
+)
+import collections.abc
 
 from sqlalchemy.orm import load_only
 from sqlalchemy.exc import DBAPIError
@@ -386,6 +390,11 @@ def collection_view_factory(
             deque(),                            # args: parent_item(sqlalchemy)
     }
 
+    CollectionView.getters = {
+        'get': deque([CollectionView.getter_db_get]),
+
+    }
+
     return CollectionView
 
 
@@ -444,22 +453,15 @@ class CollectionViewBase:
             # Spec says set Content-Type to application/vnd.api+json.
             self.request.response.content_type = 'application/vnd.api+json'
 
-            # Eventually each method will return a dictionary to be rendered
-            # using the JSON renderer.
+            # Dictionary to serve as the base (default) of a ChainMap
             ret = {
                 'meta': {}
             }
 
-            # Update the dictionary with the reults of the wrapped method.
-            ret.update(f(self, *args))
-
             # Include a self link unless the method is PATCH.
+            selfie = {}
             if self.request.method != 'PATCH':
-                selfie = {'self': self.request.url}
-                if 'links' in ret:
-                    ret['links'].update(selfie)
-                else:
-                    ret['links'] = selfie
+                selfie = {'links': {'self': self.request.url}}
 
             # Potentially add some debug information.
             if self.request.registry.settings.get(
@@ -478,8 +480,20 @@ class CollectionViewBase:
                 }
                 ret['meta'].update({'debug': debug})
 
-            return ret
+            # Merge in results of the call.
+            return RecursiveChainMap(selfie, f(self, *args), ret).to_dict()
+
         return new_f
+
+    def getter_db_get(self, prev):
+        '''Get item from database.'''
+        return self.single_return(
+            self.single_item_query,
+            'No id {} in collection {}'.format(
+                self.request.matchdict['id'],
+                self.collection_name
+            )
+        )
 
     @jsonapi_view
     def get(self):
@@ -516,13 +530,9 @@ class CollectionViewBase:
 
                 http GET http://localhost:6543/people/1
         '''
-        ret = self.single_return(
-            self.single_item_query,
-            'No id {} in collection {}'.format(
-                self.request.matchdict['id'],
-                self.collection_name
-            )
-        )
+        ret = RecursiveChainMap({})
+        for getter in self.getters['get']:
+            ret.maps.append(getter(self))
         for callback in self.callbacks['after_get']:
             ret = callback(self, ret)
         return ret
@@ -2547,3 +2557,48 @@ class DebugView:
         self.drop()
         self.populate()
         return "reset"
+
+
+class RecursiveChainMap(collections.abc.Mapping):
+    '''ChainMap that will look recursively into nested mappings.'''
+
+    def __init__(self, *maps):
+        self.maps = [m for m in maps]
+        for m in maps:
+            if not isinstance(m, collections.abc.Mapping):
+                raise TypeError(
+                    'Non mapping type ({}) in maps'.format(type(m))
+                )
+
+    def __getitem__(self, key):
+        val_it = (m[key] for m in self.maps if key in m)
+        try:
+            val = next(val_it)
+            if isinstance(val, collections.abc.Mapping):
+                return RecursiveChainMap(
+                    val, *val_it
+                )
+            else:
+                return val
+        except StopIteration:
+            raise KeyError('No key "{}" in maps.'.format(key))
+
+    def __iter__(self):
+        pos = 0
+        for map_ in self.maps:
+            for key in map_:
+                if key not in RecursiveChainMap(*self.maps[:pos]):
+                    yield key
+            pos = pos + 1
+
+    def __len__(self):
+        return sum(1 for _ in self)
+
+    def to_dict(self):
+        ret = {}
+        for k in self:
+            if isinstance(self[k], RecursiveChainMap):
+                ret[k] = self[k].to_dict()
+            else:
+                ret[k] = self[k]
+        return ret
