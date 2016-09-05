@@ -1,32 +1,17 @@
 '''Tools for constructing a JSON-API from sqlalchemy models in Pyramid.'''
-import json
-import transaction
+import logging
 import sqlalchemy
-from pyramid.view import (
-    view_config,
-    notfound_view_config,
-    forbidden_view_config
-)
-from pyramid.renderers import JSON
 from pyramid.httpexceptions import (
-    exception_response,
-    HTTPException,
     HTTPNotFound,
     HTTPForbidden,
-    HTTPUnauthorized,
-    HTTPClientError,
     HTTPBadRequest,
     HTTPConflict,
     HTTPUnsupportedMediaType,
     HTTPNotAcceptable,
-    HTTPNotImplemented,
     HTTPError,
     HTTPFailedDependency
 )
-import pyramid
-import sys
 import re
-import psycopg2
 import functools
 import types
 import importlib
@@ -34,9 +19,11 @@ from collections import deque
 
 from sqlalchemy.orm import load_only
 from sqlalchemy.exc import DBAPIError
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.ext.declarative.api import DeclarativeMeta
+
+import inflection
 
 __version__ = 0.3
 
@@ -45,6 +32,8 @@ MANYTOMANY = sqlalchemy.orm.interfaces.MANYTOMANY
 MANYTOONE = sqlalchemy.orm.interfaces.MANYTOONE
 
 view_classes = {}
+
+log = logging.getLogger(__name__)
 
 
 def error(e, request):
@@ -64,7 +53,7 @@ def error(e, request):
 def create_jsonapi(
         config, models, get_dbsession,
         engine=None, test_data=None
-        ):
+):
     '''Auto-create jsonapi from module or iterable of sqlAlchemy models.
 
     Arguments:
@@ -148,7 +137,7 @@ create_jsonapi_using_magic_and_pixie_dust = create_jsonapi
 def create_resource(
         config, model, get_dbsession,
         collection_name=None, expose_fields=None,
-        ):
+):
     '''Produce a set of resource endpoints.
 
     Arguments:
@@ -183,6 +172,9 @@ def create_resource(
     if collection_name is None:
         collection_name = sqlalchemy.inspect(model).tables[0].name
 
+    collection_name = inflection.pluralize(collection_name)
+    log.debug(collection_name)
+
     # Create a view class for use in the various add_view() calls below.
     view = collection_view_factory(
         config, model, get_dbsession, collection_name,
@@ -192,9 +184,9 @@ def create_resource(
     view_classes[model] = view
 
     settings = config.registry.settings
-    view.default_limit =\
+    view.default_limit = \
         int(settings.get('pyramid_jsonapi.paging.default_limit', 10))
-    view.max_limit =\
+    view.max_limit = \
         int(settings.get('pyramid_jsonapi.paging.max_limit', 100))
 
     # individual item
@@ -269,7 +261,7 @@ def collection_view_factory(
         get_dbsession,
         collection_name=None,
         expose_fields=None
-        ):
+):
     '''Build a class to handle requests for model.
 
     Arguments:
@@ -284,6 +276,8 @@ def collection_view_factory(
     '''
     if collection_name is None:
         collection_name = model.__tablename__
+
+    log.debug(collection_name)
 
     CollectionView = type(
         'CollectionView<{}>'.format(collection_name),
@@ -323,20 +317,20 @@ def collection_view_factory(
         collection_name
     )
 
-    CollectionView.item_route_name =\
+    CollectionView.item_route_name = \
         CollectionView.collection_route_name + ':item'
-    CollectionView.item_route_pattern =\
+    CollectionView.item_route_pattern = \
         CollectionView.collection_route_pattern + '/{id}'
 
-    CollectionView.related_route_name =\
+    CollectionView.related_route_name = \
         CollectionView.collection_route_name + ':related'
-    CollectionView.related_route_pattern =\
+    CollectionView.related_route_pattern = \
         CollectionView.collection_route_pattern + '/{id}/{relationship}'
 
-    CollectionView.relationships_route_name =\
+    CollectionView.relationships_route_name = \
         CollectionView.collection_route_name + ':relationships'
-    CollectionView.relationships_route_pattern =\
-        CollectionView.collection_route_pattern +\
+    CollectionView.relationships_route_pattern = \
+        CollectionView.collection_route_pattern + \
         '/{id}/relationships/{relationship}'
 
     CollectionView.exposed_fields = expose_fields
@@ -414,9 +408,9 @@ class CollectionViewBase:
             jsonapi_accepts = {
                 a for a in accepts
                 if a.startswith('application/vnd.api')
-            }
-            if jsonapi_accepts and\
-                    'application/vnd.api+json' not in jsonapi_accepts:
+                }
+            if jsonapi_accepts and \
+                            'application/vnd.api+json' not in jsonapi_accepts:
                 raise HTTPNotAcceptable(
                     'application/vnd.api+json must appear with no ' +
                     'parameters in Accepts header ' +
@@ -454,18 +448,18 @@ class CollectionViewBase:
 
             # Potentially add some debug information.
             if self.request.registry.settings.get(
-                'pyramid_jsonapi.debug.meta', 'false'
+                    'pyramid_jsonapi.debug.meta', 'false'
             ) == 'true':
                 debug = {
                     'accept_header': {
-                            a: None for a in jsonapi_accepts
+                        a: None for a in jsonapi_accepts
                         },
                     'qinfo_page':
                         self.collection_query_info(self.request)['_page'],
                     'atts': {k: None for k in self.attributes.keys()},
                     'includes': {
                         k: None for k in self.requested_include_names()
-                    }
+                        }
                 }
                 ret['meta'].update({'debug': debug})
 
@@ -676,7 +670,7 @@ class CollectionViewBase:
                     'attributes': [
                         att for att in atts
                         if att != self.key_column.name
-                    ],
+                        ],
                     'relationships': [r for r in rels]
                 }
             }
@@ -910,7 +904,7 @@ class CollectionViewBase:
                                 rel_identifier['id']
                             )
                             for rel_identifier in reldata['data']
-                        ]
+                            ]
                     )
                 else:
                     setattr(
@@ -918,7 +912,7 @@ class CollectionViewBase:
                         relname,
                         DBSession.query(rel_class).get(
                             reldata['data']['id'])
-                        )
+                    )
         try:
             DBSession.add(item)
             DBSession.flush()
@@ -1441,7 +1435,7 @@ class CollectionViewBase:
                     )
                 )
             try:
-                getattr(obj, relname).\
+                getattr(obj, relname). \
                     remove(DBSession.query(rel_class).get(resid['id']))
             except ValueError as e:
                 if e.args[0].endswith(': x not in list'):
@@ -1593,13 +1587,13 @@ class CollectionViewBase:
             ret['data'] = [
                 self.serialise_resource_identifier(dbitem._jsonapi_id)
                 for dbitem in q.all()
-            ]
+                ]
         else:
             included = {}
             ret['data'] = [
                 self.serialise_db_item(dbitem, included)
                 for dbitem in q.all()
-            ]
+                ]
             # Included objects
             if self.requested_include_names():
                 ret['included'] = [obj for obj in included.values()]
@@ -1876,7 +1870,7 @@ class CollectionViewBase:
     def serialise_db_item(
             self, item,
             included, include_path=None,
-            ):
+    ):
         '''Serialise an individual database item to JSON-API.
 
         Arguments:
@@ -1913,13 +1907,13 @@ class CollectionViewBase:
         atts = {
             key: getattr(item, key)
             for key in self.requested_attributes.keys()
-        }
+            }
 
         rels = {}
         for key, rel in self.relationships.items():
             rel_path_str = '.'.join(include_path + [key])
-            if key not in self.requested_relationships and\
-                    rel_path_str not in self.requested_include_names():
+            if key not in self.requested_relationships and \
+                            rel_path_str not in self.requested_include_names():
                 continue
             rel_dict = {
                 'links': {
@@ -1959,7 +1953,7 @@ class CollectionViewBase:
                             ritem,
                             included, include_path + [key]
                         )
-                rel_dict['meta']['results']['returned'] =\
+                rel_dict['meta']['results']['returned'] = \
                     len(rel_dict['data'])
             else:
                 if is_included:
@@ -2163,9 +2157,9 @@ class CollectionViewBase:
         # Last link.
         if count is not None:
             _query['page[offset]'] = (
-                max((count - 1), 0) //
-                qinfo['page[limit]']
-            ) * qinfo['page[limit]']
+                                         max((count - 1), 0) //
+                                         qinfo['page[limit]']
+                                     ) * qinfo['page[limit]']
             links['last'] = req.route_url(
                 route_name, _query=_query, **req.matchdict
             )
@@ -2232,7 +2226,7 @@ class CollectionViewBase:
         return {
             k: v for k, v in self.attributes.items()
             if k in self.requested_field_names
-        }
+            }
 
     @property
     def requested_relationships(self):
@@ -2256,7 +2250,7 @@ class CollectionViewBase:
         return {
             k: v for k, v in self.relationships.items()
             if k in self.requested_field_names
-        }
+            }
 
     @property
     def requested_fields(self):
@@ -2298,7 +2292,7 @@ class CollectionViewBase:
             for k, rel in self.requested_relationships.items()
             for pair in rel.local_remote_pairs
             if rel.direction is MANYTOONE and k in self.allowed_fields
-        }
+            }
 
     @property
     def allowed_requested_query_columns(self):
@@ -2312,7 +2306,7 @@ class CollectionViewBase:
         ret = {
             k: v for k, v in self.requested_attributes.items()
             if k in self.allowed_fields
-        }
+            }
         ret.update(
             self.allowed_requested_relationships_local_columns
         )

@@ -1,5 +1,6 @@
 pyramid
 SQLAlchemy
+inflection
 transaction
 pyramid_tm
 zope.sqlalchemy
